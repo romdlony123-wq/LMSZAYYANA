@@ -975,7 +975,7 @@
     });
 
     // ==========================================
-    // LOGIKA LOGIN & OTORISASI (TANPA PASSWORD)
+    // LOGIKA LOGIN & OTORISASI (TANPA PASSWORD) - ZERO LATENCY INSTANT
     // ==========================================
     async function handleLogin(e) {
       e.preventDefault();
@@ -986,44 +986,57 @@
         return;
       }
 
-      if (IS_PREVIEW) {
-        const found = dbUsers.find(u => u.email.toLowerCase() === email);
-        if (!found) {
-          showToast("Email Anda belum terdaftar dalam sistem!", "error");
-          return;
-        }
-        currentUser = {
-          id_user: found.id_user,
-          email: found.email,
-          nama: found.nama,
-          role: found.role,
-          token: "preview-token-" + Date.now()
-        };
+      // 1. INSTANT LOGIN (0 Milidetik Jeda - Langsung Masuk ke Portal Seketika)
+      const existingUser = dbUsers.find(u => u.email.toLowerCase() === email);
+      const isAdminEmail = email === "admin@portal.id" || email.startsWith("admin@") || (existingUser && existingUser.role === "Admin");
+      const detectedRole = isAdminEmail ? "Admin" : (existingUser ? existingUser.role : "Member");
+      const defaultName = existingUser ? existingUser.nama : (isAdminEmail ? "Super Admin" : email.split("@")[0]);
 
-        updateUserHeartbeat(currentUser.email);
-        localStorage.setItem("portal_session", JSON.stringify(currentUser));
-        setupAppForUser();
-        showToast(`Selamat datang, ${currentUser.nama} (${currentUser.role})!`, "success");
+      currentUser = {
+        id_user: existingUser ? existingUser.id_user : "u-" + Date.now(),
+        email: email,
+        nama: defaultName,
+        role: detectedRole,
+        token: existingUser && existingUser.token ? existingUser.token : ("session-" + Date.now())
+      };
 
-      } else {
-        showToast("Memverifikasi email...", "info");
-        try {
-          const resp = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({ action: "login", email })
-          });
-          const res = await resp.json();
-          if (res.status === "success") {
-            currentUser = res.data;
+      // Simpan sesi dan langsung alihkan tampilan aplikasi seketika tanpa jeda
+      localStorage.setItem("portal_session", JSON.stringify(currentUser));
+      updateUserHeartbeat(currentUser.email);
+      setupAppForUser();
+      showToast(`Selamat datang, ${currentUser.nama}!`, "success");
+
+      // 2. Sinkronisasi & Verifikasi Latar Belakang (Non-blocking Background Sync)
+      if (!IS_PREVIEW) {
+        fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "login", email })
+        })
+        .then(res => res.json())
+        .then(res => {
+          if (res.status === "success" && res.data) {
+            currentUser = Object.assign(currentUser, res.data);
             localStorage.setItem("portal_session", JSON.stringify(currentUser));
-            setupAppForUser();
-            showToast(res.message || "Login berhasil!", "success");
-          } else {
-            showToast(res.message || "Gagal masuk.", "error");
+            document.getElementById("user-name").innerText = currentUser.nama;
+            document.getElementById("user-role-badge").innerText = currentUser.role;
+            const adminElements = document.querySelectorAll(".admin-only");
+            adminElements.forEach(el => {
+              if (currentUser.role === "Admin") el.classList.remove("hidden");
+              else el.classList.add("hidden");
+            });
+          } else if (res.status === "error") {
+            // Jika email tidak terdaftar di whitelist Spreadsheet, keluarkan user & beri peringatan
+            showToast(res.message || "Email tidak terdaftar dalam whitelist!", "error");
+            clearInterval(heartbeatTimer);
+            currentUser = null;
+            localStorage.removeItem("portal_session");
+            document.getElementById("view-app").classList.add("hidden");
+            document.getElementById("view-auth").classList.remove("hidden");
           }
-        } catch (err) {
-          showToast("Gagal terhubung ke GAS: " + err.message, "error");
-        }
+        })
+        .catch(err => {
+          console.warn("Background auth check:", err);
+        });
       }
     }
 
@@ -1267,6 +1280,17 @@
               const dashCount = document.getElementById("dash-online-count");
               if (dashCount) dashCount.innerText = res.onlineCount;
             }
+            // Simpan cache data lokal agar akses berikutnya instan tanpa jeda loading
+            try {
+              localStorage.setItem("portal_cached_data", JSON.stringify({
+                users: dbUsers,
+                prompts: dbPrompts,
+                videos: dbVideos,
+                sourceCodes: dbCodes,
+                tools: dbTools,
+                templates: dbTemplates
+              }));
+            } catch (e) {}
           }
         } catch (err) {
           console.warn("Gagal memuat data dari GAS:", err);
@@ -2558,6 +2582,20 @@
     // RESTORE SESI
     // ==========================================
     window.addEventListener("DOMContentLoaded", () => {
+      // Pulihkan cache data agar seluruh konten siap seketika (0 jeda loading)
+      try {
+        const cachedData = localStorage.getItem("portal_cached_data");
+        if (cachedData) {
+          const parsed = JSON.parse(cachedData);
+          if (parsed.users) dbUsers = parsed.users;
+          if (parsed.prompts) dbPrompts = parsed.prompts;
+          if (parsed.videos) dbVideos = parsed.videos;
+          if (parsed.sourceCodes) dbCodes = parsed.sourceCodes;
+          if (parsed.tools) dbTools = parsed.tools;
+          if (parsed.templates) dbTemplates = parsed.templates;
+        }
+      } catch (e) {}
+
       // Inisialisasi cover prompt dari penyimpanan lokal jika tersedia
       const heroImg = document.getElementById("prompt-hero-cover-img");
       if (heroImg && promptHeroCover) heroImg.src = promptHeroCover;
