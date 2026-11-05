@@ -204,7 +204,7 @@
         <p class="text-xs text-slate-500 mt-1">Platform Prompt AI, Video, Source Code &amp; Tools</p>
       </div>
 
-      <!-- Formulir Login -->
+      <!-- Formulir Login (Cukup Email untuk Member & Admin Tanpa Password) -->
       <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alamat Email Terdaftar</label>
@@ -212,18 +212,7 @@
             <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
               <i class="fa-regular fa-envelope"></i>
             </span>
-            <input type="email" id="login-email" required placeholder="Masukkan email Anda..." 
-              class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs bg-slate-50/50 transition">
-          </div>
-        </div>
-
-        <div id="admin-pass-field" class="hidden">
-          <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password Admin</label>
-          <div class="relative">
-            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
-              <i class="fa-solid fa-lock"></i>
-            </span>
-            <input type="password" id="login-password" placeholder="Masukkan password admin..." 
+            <input type="email" id="login-email" required placeholder="Masukkan email terdaftar..." 
               class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs bg-slate-50/50 transition">
           </div>
         </div>
@@ -237,10 +226,10 @@
       <!-- Info Status Sistem -->
       <div class="mt-6 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-950 space-y-2">
         <div class="font-bold flex items-center gap-1.5 text-emerald-700 text-[11px]">
-          <i class="fa-solid fa-circle-check"></i> Mode Produksi Terhubung (Live GAS)
+          <i class="fa-solid fa-circle-check"></i> Akses Berbasis Whitelist Email
         </div>
         <p class="text-[11px] leading-relaxed">
-          Portal kini terhubung langsung ke database Google Sheets dan Google Drive. Masukkan email member terdaftar untuk masuk langsung, atau masukkan email beserta password admin.
+          Semua pengguna (baik Member maupun Admin) dapat langsung masuk hanya dengan menginput email yang telah terdaftar. Sistem akan otomatis mendeteksi role Anda.
         </p>
       </div>
     </div>
@@ -935,24 +924,11 @@
     });
 
     // ==========================================
-    // LOGIKA LOGIN & OTORISASI
+    // LOGIKA LOGIN & OTORISASI (TANPA PASSWORD)
     // ==========================================
-    const loginEmailInput = document.getElementById("login-email");
-    const adminPassField = document.getElementById("admin-pass-field");
-
-    loginEmailInput.addEventListener("input", (e) => {
-      const val = e.target.value.trim().toLowerCase();
-      if (val === "admin@portal.id" || val === "admin") {
-        adminPassField.classList.remove("hidden");
-      } else {
-        adminPassField.classList.add("hidden");
-      }
-    });
-
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById("login-email").value.trim().toLowerCase();
-      const pass = document.getElementById("login-password").value;
 
       if (!email) {
         showToast("Silakan masukkan alamat email Anda.", "error");
@@ -960,44 +936,30 @@
       }
 
       if (IS_PREVIEW) {
-        if (email === "admin@portal.id" || email === "admin") {
-          if (pass !== "admin2026") {
-            showToast("Password admin salah! (Gunakan: admin2026)", "error");
-            return;
-          }
-          currentUser = {
-            id_user: "u-1",
-            email: "admin@portal.id",
-            nama: "Super Admin",
-            role: "Admin",
-            token: "preview-admin-token-" + Date.now()
-          };
-        } else {
-          const found = dbUsers.find(u => u.email.toLowerCase() === email);
-          if (!found) {
-            showToast("Email Anda belum terdaftar sebagai Member! Hubungi Admin.", "error");
-            return;
-          }
-          currentUser = {
-            id_user: found.id_user,
-            email: found.email,
-            nama: found.nama,
-            role: found.role,
-            token: "preview-member-token-" + Date.now()
-          };
+        const found = dbUsers.find(u => u.email.toLowerCase() === email);
+        if (!found) {
+          showToast("Email Anda belum terdaftar dalam sistem!", "error");
+          return;
         }
+        currentUser = {
+          id_user: found.id_user,
+          email: found.email,
+          nama: found.nama,
+          role: found.role,
+          token: "preview-token-" + Date.now()
+        };
 
         updateUserHeartbeat(currentUser.email);
         localStorage.setItem("portal_session", JSON.stringify(currentUser));
         setupAppForUser();
-        showToast(`Selamat datang, ${currentUser.nama}!`, "success");
+        showToast(`Selamat datang, ${currentUser.nama} (${currentUser.role})!`, "success");
 
       } else {
-        showToast("Menghubungkan ke server backend...", "info");
+        showToast("Memverifikasi email...", "info");
         try {
           const resp = await fetch(GAS_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "login", email, password: pass })
+            body: JSON.stringify({ action: "login", email })
           });
           const res = await resp.json();
           if (res.status === "success") {
@@ -1022,7 +984,6 @@
         document.getElementById("view-app").classList.add("hidden");
         document.getElementById("view-auth").classList.remove("hidden");
         document.getElementById("login-form").reset();
-        adminPassField.classList.add("hidden");
         showToast("Anda telah keluar dari aplikasi.", "info");
       });
     }
