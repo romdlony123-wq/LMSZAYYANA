@@ -281,6 +281,10 @@
           <i class="fa-solid fa-screwdriver-wrench w-4 text-center"></i>
           <span>Tool Pilihan</span>
         </button>
+        <button onclick="switchTab('templates')" id="nav-templates" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-cubes w-4 text-center"></i>
+          <span>Template Aplikasi</span>
+        </button>
         <!-- REVISI 1: Menu Member hanya ditampilkan untuk Admin -->
         <button onclick="switchTab('members')" id="nav-members" class="nav-btn admin-only hidden w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
           <i class="fa-solid fa-users w-4 text-center"></i>
@@ -639,6 +643,35 @@
         </section>
 
         <!-- ========================================== -->
+        <!-- MENU BARU: TEMPLATE APLIKASI               -->
+        <!-- ========================================== -->
+        <section id="tab-templates" class="hidden space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-800">Template Aplikasi</h3>
+              <p class="text-xs text-slate-500">Koleksi template aplikasi web dan sistem siap pakai dengan link demo interaktif.</p>
+            </div>
+            <button id="btn-add-template" onclick="openAddTemplateModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
+              <i class="fa-solid fa-plus text-[10px]"></i> Tambah Template
+            </button>
+          </div>
+
+          <!-- Filter & Pencarian Template -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div class="relative w-full sm:w-80">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input type="text" id="search-template" oninput="renderTemplates()" placeholder="Cari nama template aplikasi..." 
+                class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">
+            </div>
+          </div>
+
+          <!-- Grid Daftar Template Aplikasi -->
+          <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        </section>
+
+        <!-- ========================================== -->
         <!-- MENU 6: MEMBER MANAGEMENT                  -->
         <!-- ========================================== -->
         <section id="tab-members" class="hidden space-y-6">
@@ -867,6 +900,24 @@
         cover_url: "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80",
         link_url: "https://canva.com",
         deskripsi: "Aplikasi desain grafis ramah pengguna untuk poster edukasi, banner, dan presentasi kelas."
+      }
+    ];
+
+    // Koleksi Template Aplikasi
+    let dbTemplates = [
+      {
+        id_template: "tpl-1",
+        judul: "Aplikasi Presensi Online Siswa & Guru",
+        deskripsi: "Sistem absensi berbasis WebApp Google Apps Script dilengkapi deteksi lokasi presensi dan rekapitulasi data otomatis ke Google Sheets.",
+        cover_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
+        demo_url: "https://google.com"
+      },
+      {
+        id_template: "tpl-2",
+        judul: "Sistem Informasi Manajemen Nilai & Raport",
+        deskripsi: "Template portal penilaian ujian siswa dengan pembuatan file raport otomatis dan visualisasi dashboard analitik capaian belajar.",
+        cover_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop&q=80",
+        demo_url: "https://google.com"
       }
     ];
 
@@ -1151,13 +1202,14 @@
         return;
       }
 
-      const tabs = ["dashboard", "prompts", "videos", "codes", "tools", "members"];
+      const tabs = ["dashboard", "prompts", "videos", "codes", "tools", "templates", "members"];
       const titles = {
         dashboard: "Dashboard Overview",
         prompts: "Koleksi Prompt AI Terpilih",
         videos: "Galeri Video Tutorial",
         codes: "Arsip Template & Source Code",
         tools: "Direktori Tool Pilihan",
+        templates: "Katalog Template Aplikasi Web",
         members: "Manajemen Member & Status Kehadiran"
       };
 
@@ -1185,6 +1237,7 @@
       if (tabId === "videos") renderVideos();
       if (tabId === "codes") renderCodes();
       if (tabId === "tools") renderTools();
+      if (tabId === "templates") renderTemplates();
       if (tabId === "members") renderMembers();
     }
 
@@ -1202,6 +1255,7 @@
             if (res.videos) dbVideos = res.videos;
             if (res.sourceCodes) dbCodes = res.sourceCodes;
             if (res.tools) dbTools = res.tools;
+            if (res.templates) dbTemplates = res.templates;
             if (res.settings && res.settings.prompt_hero_cover) {
               promptHeroCover = res.settings.prompt_hero_cover;
               const heroImg = document.getElementById("prompt-hero-cover-img");
@@ -1224,6 +1278,7 @@
       renderVideos();
       renderCodes();
       renderTools();
+      renderTemplates();
       renderMembers();
     }
 
@@ -1693,6 +1748,74 @@
     }
 
     // ==========================================
+    // RENDER: TEMPLATE APLIKASI
+    // ==========================================
+    function renderTemplates() {
+      const grid = document.getElementById("templates-grid");
+      if (!grid) return;
+      const search = (document.getElementById("search-template")?.value || "").toLowerCase();
+
+      grid.innerHTML = "";
+
+      const filtered = dbTemplates.filter(t => {
+        return t.judul.toLowerCase().includes(search) || t.deskripsi.toLowerCase().includes(search);
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Tidak ada template aplikasi yang cocok.</div>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition";
+        card.innerHTML = `
+          <div>
+            <!-- Gambar Tampilan Template (Bisa Diupload Admin) -->
+            <div class="aspect-video w-full bg-slate-100 overflow-hidden relative border-b border-slate-100">
+              <img src="${t.cover_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80'}" alt="${t.judul}" class="w-full h-full object-cover">
+            </div>
+
+            <!-- Konten: Judul, Deskripsi, Tombol Demo, & Peringatan Resources -->
+            <div class="p-5">
+              <h4 class="text-sm font-bold text-slate-800 mb-1.5">${t.judul}</h4>
+              <p class="text-xs text-slate-500 leading-relaxed mb-4">${t.deskripsi}</p>
+              
+              <!-- Tombol Buka Demo Aplikasi -->
+              <a href="${t.demo_url || '#'}" target="_blank" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md shadow-brand-500/20 transition">
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                <span>Buka Demo Aplikasi</span>
+              </a>
+
+              <!-- Peringatan: Kalau mau resources aplikasi di atas hubungi admin -->
+              <div class="mt-3.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-start gap-2 text-amber-900">
+                <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 flex-shrink-0"></i>
+                <p class="text-[11px] font-medium leading-snug">
+                  kalau mau resources aplikasi di atas hubungi admin
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Aksi Khusus Admin (Hanya Admin yang bisa Edit/Hapus) -->
+          ${currentUser && currentUser.role === 'Admin' ? `
+            <div class="px-5 pb-5 pt-0">
+              <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button onclick="openEditTemplateModal('${t.id_template}')" title="Edit Template" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1.5 text-xs font-medium transition">
+                  <i class="fa-solid fa-pen text-[10px]"></i> Edit
+                </button>
+                <button onclick="deleteTemplate('${t.id_template}')" title="Hapus Template" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center gap-1.5 text-xs font-medium transition">
+                  <i class="fa-solid fa-trash text-[10px]"></i> Hapus
+                </button>
+              </div>
+            </div>
+          ` : ''}
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ==========================================
     // RENDER: MEMBER MANAGEMENT
     // ==========================================
     function renderMembers() {
@@ -2101,6 +2224,52 @@
         }
         renderTools();
 
+      } else if (currentFormType === "template") {
+        const judul = document.getElementById("f-tpl-judul").value.trim();
+        const deskripsi = document.getElementById("f-tpl-desk").value.trim();
+        const demo_url = document.getElementById("f-tpl-demo").value.trim();
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan template aplikasi...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "saveTemplate",
+                token: currentUser.token,
+                id_template: currentEditId,
+                judul,
+                deskripsi,
+                demo_url,
+                cover_url: currentUploadedCover
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal simpan template ke GAS:", err);
+          }
+        }
+
+        if (currentEditId) {
+          const item = dbTemplates.find(t => t.id_template === currentEditId);
+          if (item) {
+            item.judul = judul;
+            item.deskripsi = deskripsi;
+            item.demo_url = demo_url;
+            if (currentUploadedCover) item.cover_url = currentUploadedCover;
+            showToast("Template aplikasi berhasil diperbarui!", "success");
+          }
+        } else {
+          dbTemplates.unshift({
+            id_template: "tpl-" + Date.now(),
+            judul,
+            deskripsi,
+            cover_url: currentUploadedCover || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
+            demo_url
+          });
+          showToast("Template aplikasi baru berhasil ditambahkan!", "success");
+        }
+        renderTemplates();
+
       } else if (currentFormType === "member") {
         const email = document.getElementById("f-member-email").value.trim().toLowerCase();
         const nama = document.getElementById("f-member-nama").value.trim();
@@ -2311,6 +2480,49 @@
         dbTools = dbTools.filter(t => t.id_tool !== id);
         renderTools();
         showToast("Tool telah dihapus.", "info");
+      });
+    }
+
+    // Modal Helper: Template Aplikasi (Upload Cover dari HP/Komputer)
+    function openAddTemplateModal() {
+      openFormModal("Tambah Template Aplikasi", "template", [
+        { id: "f-tpl-judul", label: "Judul Template Aplikasi", type: "text" },
+        { id: "f-tpl-cover", label: "Gambar Tampilan (Upload dari HP / Komputer)", type: "file" },
+        { id: "f-tpl-desk", label: "Deskripsi Aplikasi", type: "textarea", rows: 3 },
+        { id: "f-tpl-demo", label: "Link Demo Aplikasi (URL)", type: "text" }
+      ]);
+    }
+
+    function openEditTemplateModal(id) {
+      const t = dbTemplates.find(item => item.id_template === id);
+      if (!t) return;
+      openFormModal("Edit Template Aplikasi", "template", [
+        { id: "f-tpl-judul", label: "Judul Template Aplikasi", type: "text", value: t.judul },
+        { id: "f-tpl-cover", label: "Gambar Tampilan (Upload dari HP / Komputer)", type: "file", value: t.cover_url },
+        { id: "f-tpl-desk", label: "Deskripsi Aplikasi", type: "textarea", rows: 3, value: t.deskripsi },
+        { id: "f-tpl-demo", label: "Link Demo Aplikasi (URL)", type: "text", value: t.demo_url }
+      ], id);
+    }
+
+    function deleteTemplate(id) {
+      if (!currentUser || currentUser.role !== "Admin") {
+        showToast("Hanya Admin yang dapat menghapus template aplikasi!", "error");
+        return;
+      }
+      openConfirmModal("Hapus Template Aplikasi", "Hapus template aplikasi ini dari portal?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deleteTemplate", id_template: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus template di server:", e);
+          }
+        }
+        dbTemplates = dbTemplates.filter(t => t.id_template !== id);
+        renderTemplates();
+        showToast("Template aplikasi telah dihapus.", "info");
       });
     }
 
