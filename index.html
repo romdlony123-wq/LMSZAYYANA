@@ -1,0 +1,2404 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Belajar Interaktif</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              800: '#3730a3',
+              900: '#312e81'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Styling scrollbar halus */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f8fafc; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+
+  <!-- ========================================== -->
+  <!-- TOAST NOTIFICATION                         -->
+  <!-- ========================================== -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- ========================================== -->
+  <!-- MODAL KONFIRMASI (PENGGANTI CONFIRM NATIVE)-->
+  <!-- ========================================== -->
+  <div id="confirm-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 transform transition-all">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto mb-4 text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 id="confirm-title" class="text-base font-bold text-center text-slate-800 mb-1.5">Konfirmasi Tindakan</h3>
+      <p id="confirm-message" class="text-xs text-center text-slate-500 mb-6 leading-relaxed">Apakah Anda yakin ingin melanjutkan aksi ini?</p>
+      <div class="flex gap-3">
+        <button id="confirm-btn-cancel" class="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition text-xs">Batal</button>
+        <button id="confirm-btn-ok" class="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 shadow-md shadow-rose-200 transition text-xs">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL FORMULIR UNIVERSAL (PROMPT/VIDEO/DLL)-->
+  <!-- ========================================== -->
+  <div id="form-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 my-8">
+      <div class="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
+        <h3 id="form-modal-title" class="text-sm font-bold text-slate-800">Formulir Data</h3>
+        <button onclick="closeFormModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <form id="dynamic-form" onsubmit="handleFormSubmit(event)" class="space-y-4">
+        <div id="form-fields" class="space-y-4"></div>
+        <div class="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+          <button type="button" onclick="closeFormModal()" class="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 text-xs transition">Batal</button>
+          <button type="submit" id="form-submit-btn" class="px-5 py-2.5 rounded-xl bg-brand-600 text-white font-semibold hover:bg-brand-700 shadow-md shadow-brand-500/20 text-xs flex items-center gap-2 transition">
+            <span>Simpan Perubahan</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL VIDEO & DAFTAR EPISODE STEP-BY-STEP  -->
+  <!-- ========================================== -->
+  <div id="video-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+    <div class="bg-white rounded-3xl overflow-hidden max-w-4xl w-full shadow-2xl relative border border-slate-200/80 my-auto max-h-[92vh] flex flex-col">
+      <!-- Modal Topbar -->
+      <div class="flex justify-between items-center px-5 py-3.5 bg-slate-900 text-white border-b border-slate-800 flex-shrink-0">
+        <div class="flex items-center gap-2.5 min-w-0 pr-3">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
+          <h4 id="video-modal-course-title" class="text-xs sm:text-sm font-bold truncate text-slate-100">Tutorial Belajar AppScript Pemula</h4>
+        </div>
+        <button onclick="closeVideoModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition flex-shrink-0">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+      
+      <!-- Video Frame Container -->
+      <div class="aspect-video w-full bg-black flex-shrink-0 relative shadow-inner">
+        <iframe id="video-iframe" class="w-full h-full" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+
+      <!-- Episode Info & Playlist Area -->
+      <div class="p-5 sm:p-6 overflow-y-auto space-y-5 bg-slate-50/60">
+        <!-- Sedang Diputar Bar -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+          <div>
+            <div class="flex items-center gap-2">
+              <span id="video-active-ep-badge" class="px-2 py-0.5 rounded-md bg-brand-50 text-brand-700 text-[10px] font-bold border border-brand-200">Episode 1</span>
+              <span id="video-active-duration" class="text-[11px] text-slate-400 font-medium">10:15</span>
+            </div>
+            <h3 id="video-active-ep-title" class="text-sm sm:text-base font-black text-slate-800 mt-1">Pengenalan Dasar Apps Script & Editor</h3>
+          </div>
+          <span class="self-start sm:self-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-1.5 flex-shrink-0">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+            Sedang Diputar
+          </span>
+        </div>
+
+        <!-- Section Daftar Episode / Step-by-Step -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+              <i class="fa-solid fa-list-ol text-brand-600"></i> Daftar Episode &amp; Alur Belajar
+            </h4>
+            <div class="flex items-center gap-2">
+              <span id="video-ep-count-badge" class="text-[11px] text-slate-500 font-semibold">4 Episode Tersedia</span>
+              <!-- REVISI 1: Tombol Tambah Episode Bertahap untuk Admin -->
+              <button id="btn-modal-add-episode" onclick="openAddEpisodeModal(currentVideoCourse?.id_video)" class="admin-only hidden px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-semibold flex items-center gap-1 shadow-xs transition">
+                <i class="fa-solid fa-plus text-[9px]"></i>
+                <span>Tambah Episode</span>
+              </button>
+            </div>
+          </div>
+          <div id="video-episodes-list" class="space-y-2">
+            <!-- Diinjeksi via JS -->
+          </div>
+        </div>
+
+        <!-- Deskripsi Materi Kursus -->
+        <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+          <h5 class="text-xs font-bold text-slate-700 mb-1">Deskripsi Tutorial</h5>
+          <p id="video-modal-description" class="text-xs text-slate-500 leading-relaxed"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL DETAIL PROMPT (LIHAT PROMPT)         -->
+  <!-- ========================================== -->
+  <div id="view-prompt-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 my-8">
+      <div class="flex justify-between items-start mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <span id="detail-prompt-kategori" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200"></span>
+          <h3 id="detail-prompt-judul" class="text-sm font-bold text-slate-800 mt-1"></h3>
+        </div>
+        <button onclick="closeViewPromptModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+      <div class="mb-5">
+        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Isi Prompt Lengkap:</label>
+        <div class="bg-slate-900 text-slate-100 rounded-xl p-4 max-h-72 overflow-y-auto text-xs font-mono leading-relaxed whitespace-pre-wrap selection:bg-brand-500 selection:text-white" id="detail-prompt-isi"></div>
+      </div>
+      <div class="flex justify-end gap-2.5">
+        <button onclick="closeViewPromptModal()" class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 text-xs transition">Tutup</button>
+        <button id="detail-prompt-btn-copy" class="px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-1.5 transition">
+          <i class="fa-regular fa-copy"></i>
+          <span>Salin Prompt</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAMPILAN 1: AUTH SCREEN (LOGIN)            -->
+  <!-- ========================================== -->
+  <div id="view-auth" class="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-950">
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8 border border-white/20 relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-36 h-36 bg-brand-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="text-center mb-7 relative">
+        <div class="w-16 h-16 bg-gradient-to-tr from-brand-600 to-indigo-500 rounded-2xl flex items-center justify-center text-white text-2xl mx-auto mb-3 shadow-lg shadow-brand-500/30">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h1 class="text-xl font-black text-slate-800 tracking-tight">Portal Belajar Interaktif</h1>
+        <p class="text-xs text-slate-500 mt-1">Platform Prompt AI, Video, Source Code &amp; Tools</p>
+      </div>
+
+      <!-- Formulir Login -->
+      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alamat Email Terdaftar</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+              <i class="fa-regular fa-envelope"></i>
+            </span>
+            <input type="email" id="login-email" required placeholder="Masukkan email Anda..." 
+              class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs bg-slate-50/50 transition">
+          </div>
+        </div>
+
+        <div id="admin-pass-field" class="hidden">
+          <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Password Admin</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input type="password" id="login-password" placeholder="Masukkan password admin..." 
+              class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 text-xs bg-slate-50/50 transition">
+          </div>
+        </div>
+
+        <button type="submit" id="btn-login-submit" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/30 transition text-xs flex items-center justify-center gap-2">
+          <span>Masuk ke Portal</span>
+          <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
+      </form>
+
+      <!-- Info Status Sistem -->
+      <div class="mt-6 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-950 space-y-2">
+        <div class="font-bold flex items-center gap-1.5 text-emerald-700 text-[11px]">
+          <i class="fa-solid fa-circle-check"></i> Mode Produksi Terhubung (Live GAS)
+        </div>
+        <p class="text-[11px] leading-relaxed">
+          Portal kini terhubung langsung ke database Google Sheets dan Google Drive. Masukkan email member terdaftar untuk masuk langsung, atau masukkan email beserta password admin.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TAMPILAN 2: MAIN PORTAL APP                -->
+  <!-- ========================================== -->
+  <div id="view-app" class="hidden flex-1 flex flex-col md:flex-row h-screen overflow-hidden">
+    
+    <!-- SIDEBAR -->
+    <aside id="app-sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300 z-30 fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0">
+      
+      <!-- Logo Brand -->
+      <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950/40">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-600/30 font-bold text-sm">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <div class="font-black text-xs text-white tracking-wider">PORTAL BELAJAR</div>
+            <div class="text-[10px] text-brand-400 font-medium">Learning &amp; Resources</div>
+          </div>
+        </div>
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Menu Navigasi -->
+      <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-white bg-brand-600/20 text-brand-400 border border-brand-500/30">
+          <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+          <span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('prompts')" id="nav-prompts" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-wand-magic-sparkles w-4 text-center"></i>
+          <span>Koleksi Prompt</span>
+        </button>
+        <button onclick="switchTab('videos')" id="nav-videos" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-circle-play w-4 text-center"></i>
+          <span>Video Tutorial</span>
+        </button>
+        <button onclick="switchTab('codes')" id="nav-codes" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-code w-4 text-center"></i>
+          <span>Source Code</span>
+        </button>
+        <button onclick="switchTab('tools')" id="nav-tools" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-screwdriver-wrench w-4 text-center"></i>
+          <span>Tool Pilihan</span>
+        </button>
+        <!-- REVISI 1: Menu Member hanya ditampilkan untuk Admin -->
+        <button onclick="switchTab('members')" id="nav-members" class="nav-btn admin-only hidden w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
+          <i class="fa-solid fa-users w-4 text-center"></i>
+          <span>Member</span>
+        </button>
+      </nav>
+
+      <!-- Profil & Logout Bar -->
+      <div class="p-3.5 border-t border-slate-800 bg-slate-950/40">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-bold text-white text-xs uppercase" id="user-avatar">
+              U
+            </div>
+            <div class="min-w-0 flex-1">
+              <div id="user-name" class="text-xs font-bold text-white truncate">Pengguna</div>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span id="user-role-badge" class="text-[10px] text-slate-400 font-medium">Member</span>
+              </div>
+            </div>
+          </div>
+          <button onclick="handleLogout()" title="Keluar Akun" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 flex items-center justify-center transition">
+            <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- BACKDROP MOBILE -->
+    <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-20 hidden md:hidden"></div>
+
+    <!-- MAIN WRAPPER -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-slate-100/70">
+      
+      <!-- TOPBAR -->
+      <header class="h-16 bg-white border-b border-slate-200/80 px-4 md:px-8 flex items-center justify-between flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center">
+            <i class="fa-solid fa-bars text-xs"></i>
+          </button>
+          <h2 id="page-title" class="text-sm md:text-base font-black text-slate-800 tracking-tight">Dashboard Overview</h2>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Member Online Pill (Realtime) -->
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span><span id="stat-online-pill">0</span> Online</span>
+          </div>
+
+          <!-- Status Mode Badge -->
+          <span id="preview-badge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
+            <i class="fa-solid fa-cloud text-emerald-600 text-xs"></i> Cloud Live
+          </span>
+        </div>
+      </header>
+
+      <!-- CONTENT PANELS -->
+      <main class="flex-1 overflow-y-auto p-4 md:p-8">
+        
+        <!-- ========================================== -->
+        <!-- MENU 1: DASHBOARD                          -->
+        <!-- ========================================== -->
+        <section id="tab-dashboard" class="space-y-6">
+          
+          <!-- Banner Selamat Datang -->
+          <div class="rounded-3xl bg-gradient-to-r from-brand-600 via-indigo-600 to-indigo-800 p-6 md:p-8 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
+            <div class="relative z-10 max-w-2xl">
+              <span class="px-3 py-1 rounded-full bg-white/20 text-[11px] font-semibold backdrop-blur-md inline-block mb-3">Portal Pembelajaran Terpadu</span>
+              <h1 class="text-xl md:text-2xl font-black mb-1.5" id="welcome-text">Selamat Datang di Portal Belajar</h1>
+              <p class="text-indigo-100 text-xs leading-relaxed">Akses repositori prompt AI terkurasi, video edukasi interaktif, arsip source code, dan perkakas produktivitas pendukung pembelajaran Anda.</p>
+            </div>
+            <div class="absolute -right-8 -bottom-8 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+          </div>
+
+          <!-- Grid Statistik Ringkasan -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Member Online</p>
+                <h3 class="text-2xl font-black text-emerald-600 mt-1 flex items-center gap-2">
+                  <span id="dash-online-count">0</span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                </h3>
+                <p class="text-[10px] text-slate-500 mt-0.5">Aktif saat ini</p>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-signal"></i>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Member</p>
+                <h3 class="text-2xl font-black text-slate-800 mt-1" id="dash-total-members">0</h3>
+                <p class="text-[10px] text-slate-500 mt-0.5">Terdaftar resmi</p>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-brand-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-users"></i>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Koleksi Prompt</p>
+                <h3 class="text-2xl font-black text-slate-800 mt-1" id="dash-total-prompts">0</h3>
+                <p class="text-[10px] text-slate-500 mt-0.5">Siap digunakan</p>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
+              <div>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Video &amp; Source Code</p>
+                <h3 class="text-2xl font-black text-slate-800 mt-1" id="dash-total-resources">0</h3>
+                <p class="text-[10px] text-slate-500 mt-0.5">Materi &amp; Repositori</p>
+              </div>
+              <div class="w-11 h-11 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg">
+                <i class="fa-solid fa-layer-group"></i>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Akses Navigasi Cepat Dashboard -->
+          <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
+            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
+              <i class="fa-solid fa-compass text-brand-600"></i> Pintasan Menu Utama
+            </h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <button onclick="switchTab('prompts')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
+                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-800">Koleksi Prompt</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">Jelajahi pustaka prompt siap pakai.</p>
+              </button>
+
+              <button onclick="switchTab('videos')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
+                <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
+                  <i class="fa-solid fa-circle-play"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-800">Video Tutorial</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">Tonton panduan visual interaktif.</p>
+              </button>
+
+              <button onclick="switchTab('codes')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
+                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-brand-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
+                  <i class="fa-solid fa-code"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-800">Source Code</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">Salin template skrip dan kode.</p>
+              </button>
+
+              <button onclick="switchTab('tools')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
+                  <i class="fa-solid fa-screwdriver-wrench"></i>
+                </div>
+                <h4 class="text-xs font-bold text-slate-800">Tool Pilihan</h4>
+                <p class="text-[11px] text-slate-500 mt-0.5">Direktori perkakas kerja terkurasi.</p>
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MENU 2: KOLEKSI PROMPT                     -->
+        <!-- ========================================== -->
+        <section id="tab-prompts" class="hidden space-y-6">
+          
+          <!-- 1. Bagian Atas: Gambar Hero & Tulisan Kumpulan Prompt -->
+          <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
+            <div class="w-full h-48 sm:h-64 relative bg-slate-900 overflow-hidden">
+              <img id="prompt-hero-cover-img" 
+                   src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80" 
+                   alt="Banner Koleksi Prompt" 
+                   class="w-full h-full object-cover object-center opacity-90 hover:scale-105 transition duration-700">
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+              
+              <div class="absolute bottom-4 left-6 sm:bottom-6 sm:left-8">
+                <span class="px-3 py-1 rounded-full bg-brand-600/90 text-white text-[11px] font-semibold backdrop-blur-md inline-block shadow-sm">
+                  Pustaka Terkurasi
+                </span>
+              </div>
+
+              <!-- REVISI 2: Tombol Ganti Cover dari HP / Komputer (Khusus Admin) -->
+              <label class="admin-only hidden absolute top-4 right-4 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-950 text-white text-xs font-semibold backdrop-blur-md shadow-lg transition flex items-center gap-2 border border-white/20 z-10">
+                <i class="fa-solid fa-camera"></i>
+                <span>Ganti Cover Banner</span>
+                <input type="file" id="input-prompt-hero-cover" accept="image/*" class="hidden" onchange="handlePromptHeroCoverUpload(this)">
+              </label>
+            </div>
+            <div class="p-6 sm:p-7">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-800 tracking-tight">Kumpulan Prompt</h2>
+              <p class="text-xs sm:text-sm text-slate-500 mt-1 leading-relaxed">
+                Koleksi instruksi prompt pilihan untuk memandu AI dalam pembuatan materi ajar, penulisan script kode, automasi tugas harian, dan penyusunan tugas kreatif.
+              </p>
+            </div>
+          </div>
+
+          <!-- 2. Bagian Terpisah: Wadah Berkas Kumpulan Prompt & List Judul -->
+          <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-5">
+            
+            <!-- Header Berkas Kumpulan Prompt -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-xl shadow-xs">
+                  <i class="fa-solid fa-folder-open"></i>
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="text-base sm:text-lg font-black text-slate-800">Kumpulan Prompt</h3>
+                    <span id="prompt-total-badge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[10px] font-bold">0 Berkas</span>
+                  </div>
+                  <p class="text-xs text-slate-400">Daftar berkas prompt siap pakai dengan opsi lihat dan salin</p>
+                </div>
+              </div>
+
+              <!-- Filter Pencarian & Tombol Tambah Prompt (Admin Saja) -->
+              <div class="flex items-center gap-2.5">
+                <div class="relative w-full sm:w-64">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                  <input type="text" id="search-prompt" oninput="renderPrompts()" placeholder="Cari judul prompt..." 
+                    class="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50/60">
+                </div>
+
+                <button id="btn-add-prompt" onclick="openAddPromptModal()" class="admin-only hidden px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-1.5 flex-shrink-0 transition">
+                  <i class="fa-solid fa-plus text-[10px]"></i>
+                  <span>Tambah Prompt</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- List Item Prompt (Bawahnya Berisi Judul Prompt & Tombol Lihat/Salin di Kanan) -->
+            <div id="prompts-list" class="space-y-3">
+              <!-- Render otomatis via JavaScript -->
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MENU 3: VIDEO TUTORIAL                     -->
+        <!-- ========================================== -->
+        <section id="tab-videos" class="hidden space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-800">Video Tutorial</h3>
+              <p class="text-xs text-slate-500">Materi panduan visual mulai dari tingkat pemula hingga tingkat lanjut.</p>
+            </div>
+            <button id="btn-add-video" onclick="openAddVideoModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
+              <i class="fa-solid fa-plus text-[10px]"></i> Tambah Video
+            </button>
+          </div>
+
+          <!-- Filter & Pencarian Video -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div class="relative w-full sm:w-80">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input type="text" id="search-video" oninput="renderVideos()" placeholder="Cari judul video..." 
+                class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">
+            </div>
+            <select id="filter-video-category" onchange="renderVideos()" class="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-auto">
+              <option value="all">Semua Kategori</option>
+              <option value="Google Apps Script">Google Apps Script</option>
+              <option value="Web Development">Web Development</option>
+              <option value="Prompt Engineering">Prompt Engineering</option>
+              <option value="Tutorial Umum">Tutorial Umum</option>
+            </select>
+          </div>
+
+          <!-- Grid Daftar Video -->
+          <div id="videos-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MENU 4: SOURCE CODE                        -->
+        <!-- ========================================== -->
+        <section id="tab-codes" class="hidden space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-800">Repositori Source Code</h3>
+              <p class="text-xs text-slate-500">Contoh skrip siap pakai, template boilerplate, dan potongan komponen.</p>
+            </div>
+            <button id="btn-add-code" onclick="openAddCodeModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
+              <i class="fa-solid fa-plus text-[10px]"></i> Tambah Source Code
+            </button>
+          </div>
+
+          <!-- Filter & Pencarian Code -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div class="relative w-full sm:w-80">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input type="text" id="search-code" oninput="renderCodes()" placeholder="Cari nama atau bahasa..." 
+                class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">
+            </div>
+            <select id="filter-code-lang" onchange="renderCodes()" class="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-auto">
+              <option value="all">Semua Bahasa</option>
+              <option value="Google Apps Script">Apps Script (GS)</option>
+              <option value="JavaScript">JavaScript</option>
+              <option value="HTML/Tailwind">HTML / Tailwind</option>
+              <option value="Python">Python</option>
+            </select>
+          </div>
+
+          <!-- Grid Daftar Code -->
+          <div id="codes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MENU 5: TOOL PILIHAN                       -->
+        <!-- ========================================== -->
+        <section id="tab-tools" class="hidden space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-800">Direktori Tool Pilihan</h3>
+              <p class="text-xs text-slate-500">Daftar tautan aplikasi dan utilitas penunjang produktivitas terkurasi.</p>
+            </div>
+            <button id="btn-add-tool" onclick="openAddToolModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
+              <i class="fa-solid fa-plus text-[10px]"></i> Tambah Tool
+            </button>
+          </div>
+
+          <!-- Filter & Pencarian Tool -->
+          <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
+            <div class="relative w-full sm:w-80">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <input type="text" id="search-tool" oninput="renderTools()" placeholder="Cari nama tool atau fungsi..." 
+                class="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">
+            </div>
+            <select id="filter-tool-cat" onchange="renderTools()" class="text-xs border border-slate-200 rounded-xl px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-brand-500 w-full sm:w-auto">
+              <option value="all">Semua Kategori</option>
+              <option value="AI Assistant">AI Assistant</option>
+              <option value="Developer">Developer Tool</option>
+              <option value="Desain">Desain &amp; Media</option>
+              <option value="Produktivitas">Produktivitas</option>
+            </select>
+          </div>
+
+          <!-- Grid Daftar Tool -->
+          <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MENU 6: MEMBER MANAGEMENT                  -->
+        <!-- ========================================== -->
+        <section id="tab-members" class="hidden space-y-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 class="text-lg font-black text-slate-800">Direktori &amp; Manajemen Member</h3>
+              <p class="text-xs text-slate-500">Daftar anggota resmi yang memiliki izin akses login ke portal.</p>
+            </div>
+            <button id="btn-add-member" onclick="openAddMemberModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
+              <i class="fa-solid fa-user-plus text-[10px]"></i> Tambah Member Baru
+            </button>
+          </div>
+
+          <!-- Tabel Member Whitelist -->
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+            <div class="p-3.5 border-b border-slate-100 flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-50/50">
+              <div class="relative w-full sm:w-72">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <input type="text" id="search-member" oninput="renderMembers()" placeholder="Cari nama atau email..." 
+                  class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
+              </div>
+              <div class="text-xs text-slate-500 font-medium">
+                Total Anggota: <strong id="member-table-count" class="text-slate-800">0</strong>
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-600">
+                <thead class="bg-slate-100/75 text-slate-700 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                  <tr>
+                    <th class="px-5 py-3.5">Nama Member</th>
+                    <th class="px-4 py-3.5">Email Akses</th>
+                    <th class="px-4 py-3.5">Role</th>
+                    <th class="px-4 py-3.5">Status Online</th>
+                    <th class="px-4 py-3.5">Aktivitas Terakhir</th>
+                    <th class="px-4 py-3.5 text-right admin-only hidden">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="members-table-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+    </div>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC & STATE ENGINE            -->
+  <!-- ========================================== -->
+  <script>
+    // ==========================================
+    // KONFIGURASI ENGINE
+    // ==========================================
+    const IS_PREVIEW = false; // Mode Production aktif terhubung ke Google Apps Script
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzRxD1upuq_B4D7w2JEL-eVRAylcUEsR94ORYIHxdAOTeZICz1rOfjb1a9ql7RbqgO5Tg/exec";
+
+    const HEARTBEAT_INTERVAL = 60 * 1000; // Ping setiap 1 menit
+    const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // Batas aktif < 5 menit dianggap online
+
+    // State Pengguna Aktif
+    let currentUser = null;
+    let heartbeatTimer = null;
+
+    // REVISI 2: Cover Kumpulan Prompt tersimpan lokal / Drive
+    let promptHeroCover = localStorage.getItem("prompt_hero_cover") || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80";
+
+    // Database Mocking (Mode Preview)
+    let dbUsers = [
+      { id_user: "u-1", email: "admin@portal.id", nama: "Super Admin", role: "Admin", last_active: new Date().toISOString() },
+      { id_user: "u-2", email: "member@portal.id", nama: "Member Teladan", role: "Member", last_active: new Date().toISOString() },
+      { id_user: "u-3", email: "budi@portal.id", nama: "Budi Santoso", role: "Member", last_active: new Date(Date.now() - 2 * 60000).toISOString() },
+      { id_user: "u-4", email: "siti@portal.id", nama: "Siti Rahma", role: "Member", last_active: new Date(Date.now() - 30 * 60000).toISOString() },
+      { id_user: "u-5", email: "ahmad@portal.id", nama: "Ahmad Dahlan", role: "Member", last_active: new Date(Date.now() - 120 * 60000).toISOString() }
+    ];
+
+    // REVISI 3: Prompt kini mendukung Cover Image
+    let dbPrompts = [
+      {
+        id_prompt: "p-1",
+        judul: "Pembuat Modul Ajar Kurikulum Merdeka",
+        kategori: "Edukasi",
+        cover_url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Menghasilkan kerangka modul ajar lengkap dengan tujuan, asesmen, dan alur bermakna.",
+        isi_prompt: "Bertindaklah sebagai Pakar Desain Kurikulum Pendidikan. Buatkan Modul Ajar lengkap untuk Mata Pelajaran [Sebutkan Pelajaran] Kelas [Sebutkan Kelas] dengan Topik [Sebutkan Topik]. Struktur wajib memuat: 1. Capaian Pembelajaran, 2. Alur Tujuan Pembelajaran, 3. Pertanyaan Pemantik, 4. Rincian Kegiatan Awal, Inti, dan Penutup, 5. Rubrik Asesmen Formatif.",
+        author: "Admin",
+        created_at: "2026-11-01"
+      },
+      {
+        id_prompt: "p-2",
+        judul: "Generator Google Apps Script CRUD Spreadsheet",
+        kategori: "Coding",
+        cover_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Prompt spesialis untuk menghasilkan backend GAS yang aman dengan LockService dan doPost.",
+        isi_prompt: "Anda adalah Software Engineer Senior spesialis Google Apps Script. Buatkan fungsi doGet() dan doPost(e) lengkap untuk operasi CRUD data ke Google Spreadsheet ID [ID_SHEET]. Wajib terapkan LockService.getScriptLock(), validasi token, penanganan error try-catch, dan format respon JSON yang terstandarisasi.",
+        author: "Admin",
+        created_at: "2026-11-02"
+      },
+      {
+        id_prompt: "p-3",
+        judul: "Perancang Rubrik Penilaian Proyek Praktis",
+        kategori: "Edukasi",
+        cover_url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Menyusun kriteria skala 1-4 untuk mengevaluasi karya siswa secara adil dan objektif.",
+        isi_prompt: "Susun tabel rubrik penilaian autentik 4 tingkatan (Perlu Bimbingan, Cukup, Baik, Sangat Baik) untuk evaluasi tugas proyek siswa: [Sebutkan Proyek]. Komponen penilaian harus meliputi: Kerapian, Kedalaman Analisis, Orisinalitas, dan Presentasi.",
+        author: "Admin",
+        created_at: "2026-11-03"
+      },
+      {
+        id_prompt: "p-4",
+        judul: "Prompt Desain UI Tailwind CSS Responsif",
+        kategori: "Kreatif",
+        cover_url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Prompt untuk AI generator dalam merancang antarmuka dashboard modern yang ramah mobile.",
+        isi_prompt: "Rancang komponen Card Dashboard interaktif menggunakan Tailwind CSS murni. Desain harus minimalis, modern, rounded-2xl, border halus, bayangan soft, mendukung dark/light contrast yang seimbang, dan 100% responsif pada smartphone.",
+        author: "Admin",
+        created_at: "2026-11-04"
+      }
+    ];
+
+    // State Kursus & Episode Aktif
+    let currentVideoCourse = null;
+    let currentActiveEpIndex = 0;
+
+    let dbVideos = [
+      {
+        id_video: "v-1",
+        judul: "Tutorial Belajar AppScript Pemula",
+        kategori: "Google Apps Script",
+        cover_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Panduan berurutan dan terstruktur mempelajari Google Apps Script dari dasar, pengelolaan database Google Sheets, hingga pembuatan API WebApp interaktif.",
+        episodes: [
+          { ep: 1, judul: "Pengenalan Dasar Apps Script & Ekosistem Google", youtube_id: "dQw4w9WgXcQ", durasi: "10:15" },
+          { ep: 2, judul: "Membaca, Menyaring & Menulis Data Spreadsheet", youtube_id: "dQw4w9WgXcQ", durasi: "14:20" },
+          { ep: 3, judul: "Membangun Endpoint API doGet & doPost", youtube_id: "dQw4w9WgXcQ", durasi: "18:45" },
+          { ep: 4, judul: "Integrasi Form Frontend HTML dengan Fetch API", youtube_id: "dQw4w9WgXcQ", durasi: "22:10" }
+        ]
+      },
+      {
+        id_video: "v-2",
+        judul: "Membangun Autentikasi Whitelist Email dengan GAS",
+        kategori: "Google Apps Script",
+        cover_url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Sistem otentikasi login modern tanpa perlu register akun rumit, cukup memvalidasi email member ke spreadsheet.",
+        episodes: [
+          { ep: 1, judul: "Konsep Dasar Autentikasi Whitelist Spreadsheet", youtube_id: "dQw4w9WgXcQ", durasi: "08:30" },
+          { ep: 2, judul: "Membuat Token Session & Verifikasi Role Server", youtube_id: "dQw4w9WgXcQ", durasi: "15:40" },
+          { ep: 3, judul: "Mengamankan Hak Akses Frontend Berbasis Role", youtube_id: "dQw4w9WgXcQ", durasi: "12:15" }
+        ]
+      },
+      {
+        id_video: "v-3",
+        judul: "Trik Cepat Desain Antarmuka Tailwind CSS",
+        kategori: "Web Development",
+        cover_url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&auto=format&fit=crop&q=80",
+        deskripsi: "Kiat menata layout grid, flexbox responsif, modal interaktif, dan palet warna profesional untuk dashboard.",
+        episodes: [
+          { ep: 1, judul: "Setup Tailwind CSS CDN & Konfigurasi Tema", youtube_id: "dQw4w9WgXcQ", durasi: "11:20" },
+          { ep: 2, judul: "Membuat Komponen Card & Grid Multi-device", youtube_id: "dQw4w9WgXcQ", durasi: "16:45" },
+          { ep: 3, judul: "Mendesain Drawer Sidebar & Modal Interaktif", youtube_id: "dQw4w9WgXcQ", durasi: "19:10" }
+        ]
+      }
+    ];
+
+    // REVISI 2: Source Code kini menyimpan Index.html & Code.gs secara terpisah
+    let dbCodes = [
+      {
+        id_code: "c-1",
+        judul: "Sistem Presensi Siswa Realtime Google Sheets",
+        bahasa: "GAS + HTML",
+        deskripsi: "Paket lengkap WebApp presensi otomatis terhubung ke database Google Sheets.",
+        code_index: `<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <title>Presensi Online</title>\n  <script src="https://cdn.tailwindcss.com"><\/script>\n</head>\n<body class="p-6 bg-slate-50">\n  <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow">\n    <h2 class="text-base font-bold mb-3">Presensi Siswa</h2>\n    <input id="nama" class="border p-2 w-full rounded mb-3 text-xs" placeholder="Nama Lengkap Siswa">\n    <button onclick="kirimPresensi()" class="w-full bg-indigo-600 text-white py-2 rounded text-xs">Kirim Kehadiran</button>\n  </div>\n</body>\n</html>`,
+        code_gs: `function doPost(e) {\n  const lock = LockService.getScriptLock();\n  lock.tryLock(10000);\n  try {\n    const payload = JSON.parse(e.postData.contents);\n    const ss = SpreadsheetApp.getActiveSpreadsheet();\n    const sheet = ss.getSheetByName('Presensi');\n    sheet.appendRow([new Date(), payload.nama, 'Hadir']);\n    return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Presensi tercatat!' }))\n      .setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  } finally {\n    lock.releaseLock();\n  }\n}`,
+        repo_url: "https://github.com"
+      },
+      {
+        id_code: "c-2",
+        judul: "Portal Belajar Interaktif Boilerplate",
+        bahasa: "GAS + HTML",
+        deskripsi: "Template frontend dan backend Apps Script dengan sistem whitelist akun email.",
+        code_index: `<!DOCTYPE html>\n<html>\n<head>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Portal Siswa</title>\n</head>\n<body>\n  <header><h1>Portal Belajar</h1></header>\n  <main id="konten"></main>\n</body>\n</html>`,
+        code_gs: `function doGet() {\n  return HtmlService.createHtmlOutputFromFile('index')\n    .setTitle('Portal Belajar')\n    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n}\n\nfunction setupDatabase() {\n  // Inisialisasi sheet otomatis\n}`,
+        repo_url: "https://github.com"
+      }
+    ];
+
+    // REVISI 4: Tools kini mendukung Cover Image
+    let dbTools = [
+      {
+        id_tool: "t-1",
+        nama: "ChatGPT Open AI",
+        kategori: "AI Assistant",
+        icon: "fa-solid fa-robot",
+        cover_url: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=600&auto=format&fit=crop&q=80",
+        link_url: "https://chatgpt.com",
+        deskripsi: "Platform AI percakapan serbaguna untuk menyusun materi, prompt, dan analisis teks."
+      },
+      {
+        id_tool: "t-2",
+        nama: "Claude Anthropic",
+        kategori: "AI Assistant",
+        icon: "fa-solid fa-brain",
+        cover_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+        link_url: "https://claude.ai",
+        deskripsi: "Model AI dengan kemampuan analisis dokumen panjang dan penulisan kode terstruktur."
+      },
+      {
+        id_tool: "t-3",
+        nama: "GitHub Pages",
+        kategori: "Developer",
+        icon: "fa-brands fa-github",
+        cover_url: "https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=600&auto=format&fit=crop&q=80",
+        link_url: "https://pages.github.com",
+        deskripsi: "Layanan hosting gratis langsung dari repositori GitHub untuk web aplikasi statis."
+      },
+      {
+        id_tool: "t-4",
+        nama: "Canva Education",
+        kategori: "Desain",
+        icon: "fa-solid fa-palette",
+        cover_url: "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80",
+        link_url: "https://canva.com",
+        deskripsi: "Aplikasi desain grafis ramah pengguna untuk poster edukasi, banner, dan presentasi kelas."
+      }
+    ];
+
+    // ==========================================
+    // NOTIFIKASI TOAST CUSTOM
+    // ==========================================
+    function showToast(message, type = "success") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      
+      const icons = {
+        success: "fa-solid fa-circle-check text-emerald-500",
+        error: "fa-solid fa-circle-exclamation text-rose-500",
+        info: "fa-solid fa-circle-info text-brand-500"
+      };
+
+      toast.className = "pointer-events-auto flex items-center gap-3 p-3.5 bg-white rounded-2xl shadow-xl border border-slate-100 transform transition-all duration-300 translate-x-full";
+      toast.innerHTML = `
+        <div class="text-base"><i class="${icons[type] || icons.info}"></i></div>
+        <div class="text-xs font-semibold text-slate-700 flex-1 leading-snug">${message}</div>
+      `;
+
+      container.appendChild(toast);
+      requestAnimationFrame(() => {
+        toast.classList.remove("translate-x-full");
+      });
+
+      setTimeout(() => {
+        toast.classList.add("translate-x-full", "opacity-0");
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // ==========================================
+    // MODAL KONFIRMASI CUSTOM
+    // ==========================================
+    let confirmCallback = null;
+
+    function openConfirmModal(title, message, onConfirm) {
+      document.getElementById("confirm-title").innerText = title;
+      document.getElementById("confirm-message").innerText = message;
+      confirmCallback = onConfirm;
+      document.getElementById("confirm-modal").classList.remove("hidden");
+    }
+
+    function closeConfirmModal() {
+      document.getElementById("confirm-modal").classList.add("hidden");
+      confirmCallback = null;
+    }
+
+    document.getElementById("confirm-btn-cancel").addEventListener("click", closeConfirmModal);
+    document.getElementById("confirm-btn-ok").addEventListener("click", () => {
+      if (typeof confirmCallback === "function") confirmCallback();
+      closeConfirmModal();
+    });
+
+    // ==========================================
+    // LOGIKA LOGIN & OTORISASI
+    // ==========================================
+    const loginEmailInput = document.getElementById("login-email");
+    const adminPassField = document.getElementById("admin-pass-field");
+
+    loginEmailInput.addEventListener("input", (e) => {
+      const val = e.target.value.trim().toLowerCase();
+      if (val === "admin@portal.id" || val === "admin") {
+        adminPassField.classList.remove("hidden");
+      } else {
+        adminPassField.classList.add("hidden");
+      }
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim().toLowerCase();
+      const pass = document.getElementById("login-password").value;
+
+      if (!email) {
+        showToast("Silakan masukkan alamat email Anda.", "error");
+        return;
+      }
+
+      if (IS_PREVIEW) {
+        if (email === "admin@portal.id" || email === "admin") {
+          if (pass !== "admin2026") {
+            showToast("Password admin salah! (Gunakan: admin2026)", "error");
+            return;
+          }
+          currentUser = {
+            id_user: "u-1",
+            email: "admin@portal.id",
+            nama: "Super Admin",
+            role: "Admin",
+            token: "preview-admin-token-" + Date.now()
+          };
+        } else {
+          const found = dbUsers.find(u => u.email.toLowerCase() === email);
+          if (!found) {
+            showToast("Email Anda belum terdaftar sebagai Member! Hubungi Admin.", "error");
+            return;
+          }
+          currentUser = {
+            id_user: found.id_user,
+            email: found.email,
+            nama: found.nama,
+            role: found.role,
+            token: "preview-member-token-" + Date.now()
+          };
+        }
+
+        updateUserHeartbeat(currentUser.email);
+        localStorage.setItem("portal_session", JSON.stringify(currentUser));
+        setupAppForUser();
+        showToast(`Selamat datang, ${currentUser.nama}!`, "success");
+
+      } else {
+        showToast("Menghubungkan ke server backend...", "info");
+        try {
+          const resp = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "login", email, password: pass })
+          });
+          const res = await resp.json();
+          if (res.status === "success") {
+            currentUser = res.data;
+            localStorage.setItem("portal_session", JSON.stringify(currentUser));
+            setupAppForUser();
+            showToast(res.message || "Login berhasil!", "success");
+          } else {
+            showToast(res.message || "Gagal masuk.", "error");
+          }
+        } catch (err) {
+          showToast("Gagal terhubung ke GAS: " + err.message, "error");
+        }
+      }
+    }
+
+    function handleLogout() {
+      openConfirmModal("Konfirmasi Keluar", "Apakah Anda yakin ingin keluar dari portal?", () => {
+        clearInterval(heartbeatTimer);
+        currentUser = null;
+        localStorage.removeItem("portal_session");
+        document.getElementById("view-app").classList.add("hidden");
+        document.getElementById("view-auth").classList.remove("hidden");
+        document.getElementById("login-form").reset();
+        adminPassField.classList.add("hidden");
+        showToast("Anda telah keluar dari aplikasi.", "info");
+      });
+    }
+
+    function setupAppForUser() {
+      document.getElementById("view-auth").classList.add("hidden");
+      document.getElementById("view-app").classList.remove("hidden");
+
+      document.getElementById("user-name").innerText = currentUser.nama;
+      document.getElementById("user-role-badge").innerText = currentUser.role;
+      document.getElementById("user-avatar").innerText = currentUser.nama.charAt(0);
+      document.getElementById("welcome-text").innerText = `Halo, ${currentUser.nama}!`;
+
+      // Set cover prompt hero
+      const heroImg = document.getElementById("prompt-hero-cover-img");
+      if (heroImg && promptHeroCover) heroImg.src = promptHeroCover;
+
+      const adminElements = document.querySelectorAll(".admin-only");
+      adminElements.forEach(el => {
+        if (currentUser.role === "Admin") {
+          el.classList.remove("hidden");
+        } else {
+          el.classList.add("hidden");
+        }
+      });
+
+      startHeartbeatEngine();
+      switchTab("dashboard");
+      refreshAllData();
+    }
+
+    // REVISI 2: Handler Ganti Cover Kumpulan Prompt dari HP / Laptop
+    async function handlePromptHeroCoverUpload(inputEl) {
+      const file = inputEl.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        promptHeroCover = e.target.result;
+        try {
+          localStorage.setItem("prompt_hero_cover", promptHeroCover);
+        } catch (err) {
+          console.warn("Storage quota full, using in-memory cover");
+        }
+        const img = document.getElementById("prompt-hero-cover-img");
+        if (img) img.src = promptHeroCover;
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan cover ke Google Drive...", "info");
+            const resp = await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "updatePromptCover",
+                token: currentUser.token,
+                cover_data: promptHeroCover
+              })
+            });
+            const res = await resp.json();
+            if (res.status === "success" && res.url) {
+              promptHeroCover = res.url;
+              if (img) img.src = res.url;
+            }
+          } catch (err) {
+            console.warn("Gagal sinkron cover ke Drive:", err);
+          }
+        }
+
+        showToast("Cover Kumpulan Prompt berhasil diperbarui!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Helper: Ekstraksi YouTube ID dari Tautan Lengkap atau ID Mentah
+    function extractYoutubeId(input) {
+      if (!input) return "dQw4w9WgXcQ";
+      const trimmed = input.trim();
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = trimmed.match(regExp);
+      if (match && match[2].length === 11) {
+        return match[2];
+      }
+      return trimmed;
+    }
+
+    // ==========================================
+    // SISTEM HEARTBEAT & HITUNG ONLINE
+    // ==========================================
+    function updateUserHeartbeat(email) {
+      const idx = dbUsers.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
+      if (idx !== -1) {
+        dbUsers[idx].last_active = new Date().toISOString();
+      }
+    }
+
+    function countOnlineMembers() {
+      const now = Date.now();
+      return dbUsers.filter(u => {
+        const last = new Date(u.last_active).getTime();
+        return (now - last) <= ONLINE_THRESHOLD_MS;
+      }).length;
+    }
+
+    function startHeartbeatEngine() {
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+
+      const beat = async () => {
+        if (!currentUser) return;
+
+        if (IS_PREVIEW) {
+          updateUserHeartbeat(currentUser.email);
+          updateOnlineMetrics();
+        } else {
+          try {
+            const resp = await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "heartbeat", email: currentUser.email, token: currentUser.token })
+            });
+            const res = await resp.json();
+            if (res.status === "success" && res.onlineCount !== undefined) {
+              const statPill = document.getElementById("stat-online-pill");
+              if (statPill) statPill.innerText = res.onlineCount;
+              const dashCount = document.getElementById("dash-online-count");
+              if (dashCount) dashCount.innerText = res.onlineCount;
+            }
+          } catch (e) {
+            console.warn("Heartbeat error", e);
+          }
+        }
+      };
+
+      beat();
+      heartbeatTimer = setInterval(beat, HEARTBEAT_INTERVAL);
+    }
+
+    function updateOnlineMetrics() {
+      const onlineCount = countOnlineMembers();
+      const statPill = document.getElementById("stat-online-pill");
+      if (statPill) statPill.innerText = onlineCount;
+      const dashCount = document.getElementById("dash-online-count");
+      if (dashCount) dashCount.innerText = onlineCount;
+    }
+
+    // ==========================================
+    // NAVIGASI MENU & TAB
+    // ==========================================
+    function toggleSidebar() {
+      const sidebar = document.getElementById("app-sidebar");
+      const backdrop = document.getElementById("sidebar-backdrop");
+      const isClosed = sidebar.classList.contains("-translate-x-full");
+
+      if (isClosed) {
+        sidebar.classList.remove("-translate-x-full");
+        backdrop.classList.remove("hidden");
+      } else {
+        sidebar.classList.add("-translate-x-full");
+        backdrop.classList.add("hidden");
+      }
+    }
+
+    function switchTab(tabId) {
+      // REVISI 1: Proteksi ketat hak akses menu Member khusus Admin
+      if (tabId === "members" && (!currentUser || currentUser.role !== "Admin")) {
+        showToast("Akses menu Member hanya diperuntukkan bagi Administrator!", "error");
+        return;
+      }
+
+      const tabs = ["dashboard", "prompts", "videos", "codes", "tools", "members"];
+      const titles = {
+        dashboard: "Dashboard Overview",
+        prompts: "Koleksi Prompt AI Terpilih",
+        videos: "Galeri Video Tutorial",
+        codes: "Arsip Template & Source Code",
+        tools: "Direktori Tool Pilihan",
+        members: "Manajemen Member & Status Kehadiran"
+      };
+
+      tabs.forEach(t => {
+        const sec = document.getElementById("tab-" + t);
+        const btn = document.getElementById("nav-" + t);
+        if (t === tabId) {
+          sec.classList.remove("hidden");
+          btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-white bg-brand-600/20 text-brand-400 border border-brand-500/30";
+        } else {
+          sec.classList.add("hidden");
+          btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60";
+        }
+      });
+
+      document.getElementById("page-title").innerText = titles[tabId] || "Portal Belajar";
+
+      const sidebar = document.getElementById("app-sidebar");
+      if (!sidebar.classList.contains("-translate-x-full") && window.innerWidth < 768) {
+        toggleSidebar();
+      }
+
+      if (tabId === "dashboard") renderDashboard();
+      if (tabId === "prompts") renderPrompts();
+      if (tabId === "videos") renderVideos();
+      if (tabId === "codes") renderCodes();
+      if (tabId === "tools") renderTools();
+      if (tabId === "members") renderMembers();
+    }
+
+    async function refreshAllData() {
+      if (!IS_PREVIEW && currentUser) {
+        try {
+          const resp = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "getAllData", token: currentUser.token })
+          });
+          const res = await resp.json();
+          if (res.status === "success") {
+            if (res.users) dbUsers = res.users;
+            if (res.prompts) dbPrompts = res.prompts;
+            if (res.videos) dbVideos = res.videos;
+            if (res.sourceCodes) dbCodes = res.sourceCodes;
+            if (res.tools) dbTools = res.tools;
+            if (res.settings && res.settings.prompt_hero_cover) {
+              promptHeroCover = res.settings.prompt_hero_cover;
+              const heroImg = document.getElementById("prompt-hero-cover-img");
+              if (heroImg) heroImg.src = promptHeroCover;
+            }
+            if (res.onlineCount !== undefined) {
+              const statPill = document.getElementById("stat-online-pill");
+              if (statPill) statPill.innerText = res.onlineCount;
+              const dashCount = document.getElementById("dash-online-count");
+              if (dashCount) dashCount.innerText = res.onlineCount;
+            }
+          }
+        } catch (err) {
+          console.warn("Gagal memuat data dari GAS:", err);
+        }
+      }
+      updateOnlineMetrics();
+      renderDashboard();
+      renderPrompts();
+      renderVideos();
+      renderCodes();
+      renderTools();
+      renderMembers();
+    }
+
+    // ==========================================
+    // RENDER: DASHBOARD (RINGKAS & BERSIH)
+    // ==========================================
+    function renderDashboard() {
+      updateOnlineMetrics();
+      const elMembers = document.getElementById("dash-total-members");
+      if (elMembers) elMembers.innerText = dbUsers.length;
+      const elPrompts = document.getElementById("dash-total-prompts");
+      if (elPrompts) elPrompts.innerText = dbPrompts.length;
+      const elResources = document.getElementById("dash-total-resources");
+      if (elResources) elResources.innerText = dbVideos.length + dbCodes.length;
+    }
+
+    // ==========================================
+    // RENDER: KOLEKSI PROMPT
+    // ==========================================
+    function renderPrompts() {
+      const listContainer = document.getElementById("prompts-list");
+      if (!listContainer) return;
+      const search = (document.getElementById("search-prompt")?.value || "").toLowerCase();
+
+      listContainer.innerHTML = "";
+
+      const filtered = dbPrompts.filter(p => {
+        return p.judul.toLowerCase().includes(search) || (p.isi_prompt && p.isi_prompt.toLowerCase().includes(search));
+      });
+
+      const countBadge = document.getElementById("prompt-total-badge");
+      if (countBadge) countBadge.innerText = `${filtered.length} Berkas`;
+
+      if (filtered.length === 0) {
+        listContainer.innerHTML = `
+          <div class="py-12 text-center text-slate-400">
+            <i class="fa-regular fa-folder-open text-3xl mb-2 text-slate-300"></i>
+            <p class="text-xs">Tidak ada prompt yang sesuai dengan kata kunci pencarian.</p>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach((p, index) => {
+        const item = document.createElement("div");
+        item.className = "flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50/70 hover:bg-indigo-50/40 border border-slate-200/70 hover:border-brand-200 transition group";
+        item.innerHTML = `
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 text-brand-600 flex items-center justify-center flex-shrink-0 shadow-xs group-hover:bg-brand-600 group-hover:text-white transition">
+              <i class="fa-regular fa-file-lines text-base"></i>
+            </div>
+            <div class="min-w-0">
+              <h4 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-brand-700 transition truncate">${p.judul}</h4>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[10px] text-brand-600 font-semibold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200/50">${p.kategori || 'Umum'}</span>
+                <span class="text-[10px] text-slate-400">Berkas #${index + 1}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-end sm:self-auto flex-shrink-0">
+            <button onclick="openViewPromptModal('${p.id_prompt}')" class="py-2 px-3.5 rounded-xl bg-white hover:bg-brand-50 text-brand-700 border border-slate-200 hover:border-brand-300 text-xs font-semibold flex items-center gap-1.5 shadow-xs transition">
+              <i class="fa-solid fa-eye text-[11px]"></i>
+              <span>Lihat</span>
+            </button>
+            <button onclick="copyPromptText('${p.id_prompt}')" class="py-2 px-3.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs shadow-brand-500/20 transition">
+              <i class="fa-regular fa-copy text-[11px]"></i>
+              <span>Salin</span>
+            </button>
+            ${currentUser && currentUser.role === 'Admin' ? `
+              <button onclick="deletePrompt('${p.id_prompt}')" title="Hapus Prompt (Khusus Admin)" class="w-8 h-8 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+
+    function openViewPromptModal(id) {
+      const item = dbPrompts.find(p => p.id_prompt === id);
+      if (!item) return;
+
+      document.getElementById("detail-prompt-judul").innerText = item.judul;
+      document.getElementById("detail-prompt-kategori").innerText = item.kategori || "Umum";
+      document.getElementById("detail-prompt-isi").innerText = item.isi_prompt;
+      
+      const copyBtn = document.getElementById("detail-prompt-btn-copy");
+      copyBtn.onclick = () => copyPromptText(item.id_prompt);
+
+      document.getElementById("view-prompt-modal").classList.remove("hidden");
+    }
+
+    function closeViewPromptModal() {
+      document.getElementById("view-prompt-modal").classList.add("hidden");
+    }
+
+    function copyPromptText(id) {
+      const item = dbPrompts.find(p => p.id_prompt === id);
+      if (!item) return;
+
+      navigator.clipboard.writeText(item.isi_prompt).then(() => {
+        showToast("Teks prompt berhasil disalin!", "success");
+      }).catch(() => {
+        showToast("Gagal menyalin otomatis.", "error");
+      });
+    }
+
+    // ==========================================
+    // RENDER: VIDEO TUTORIAL
+    // ==========================================
+    function renderVideos() {
+      const grid = document.getElementById("videos-grid");
+      if (!grid) return;
+      const search = (document.getElementById("search-video")?.value || "").toLowerCase();
+      const cat = document.getElementById("filter-video-category")?.value || "all";
+
+      grid.innerHTML = "";
+
+      const filtered = dbVideos.filter(v => {
+        const matchSearch = v.judul.toLowerCase().includes(search) || v.deskripsi.toLowerCase().includes(search);
+        const matchCat = cat === "all" || v.kategori === cat;
+        return matchSearch && matchCat;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Tidak ada video tutorial yang cocok.</div>`;
+        return;
+      }
+
+      filtered.forEach(v => {
+        const card = document.createElement("div");
+        const epCount = v.episodes ? v.episodes.length : 1;
+        const firstYt = (v.episodes && v.episodes[0]) ? v.episodes[0].youtube_id : "dQw4w9WgXcQ";
+        const coverImg = v.cover_url || `https://img.youtube.com/vi/${firstYt}/hqdefault.jpg`;
+
+        card.className = "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition";
+        card.innerHTML = `
+          <div>
+            <div class="aspect-video bg-slate-900 relative group cursor-pointer overflow-hidden flex items-center justify-center" onclick="openCourseVideo('${v.id_video}', 0)">
+              <div class="absolute inset-0 bg-cover bg-center opacity-85 group-hover:opacity-95 group-hover:scale-105 transition duration-500" style="background-image: url('${coverImg}');"></div>
+              <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+              <div class="w-12 h-12 rounded-full bg-brand-600/90 text-white flex items-center justify-center text-base shadow-lg z-10 group-hover:scale-110 transition backdrop-blur-xs">
+                <i class="fa-solid fa-play ml-0.5"></i>
+              </div>
+              <span class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-lg bg-black/85 text-white text-[10px] font-bold flex items-center gap-1.5 backdrop-blur-xs">
+                <i class="fa-solid fa-layer-group text-[9px] text-brand-400"></i> ${epCount} Episode / Step
+              </span>
+            </div>
+
+            <div class="p-5">
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">${v.kategori}</span>
+                <span class="text-[10px] text-brand-600 font-semibold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200">${epCount} Bagian</span>
+              </div>
+              <h4 class="text-sm font-bold text-slate-800 mb-1 group-hover:text-brand-600 transition">${v.judul}</h4>
+              <p class="text-xs text-slate-500 line-clamp-2">${v.deskripsi}</p>
+            </div>
+          </div>
+
+          <div class="px-5 pb-5 pt-0 flex items-center gap-2">
+            <button onclick="openCourseVideo('${v.id_video}', 0)" class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-xs shadow-brand-500/20 transition">
+              <i class="fa-solid fa-play text-[10px]"></i>
+              <span>Buka Video &amp; Episode</span>
+            </button>
+            ${currentUser && currentUser.role === 'Admin' ? `
+              <button onclick="openAddEpisodeModal('${v.id_video}')" title="Tambah Episode Bertahap" class="px-2.5 py-2.5 rounded-xl border border-indigo-200 bg-indigo-50 text-brand-700 hover:bg-indigo-100 flex items-center gap-1 text-xs font-semibold transition">
+                <i class="fa-solid fa-plus-circle"></i> + Ep
+              </button>
+              <button onclick="openEditVideoModal('${v.id_video}')" title="Edit Seri & Episode" class="w-9 h-9 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-pen"></i>
+              </button>
+              <button onclick="deleteVideo('${v.id_video}')" title="Hapus Seri" class="w-9 h-9 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function openCourseVideo(courseId, epIndex = 0) {
+      const course = dbVideos.find(v => v.id_video === courseId);
+      if (!course) return;
+
+      currentVideoCourse = course;
+      currentActiveEpIndex = epIndex;
+
+      // Isi Judul Seri dan Deskripsi
+      document.getElementById("video-modal-course-title").innerText = course.judul;
+      document.getElementById("video-modal-description").innerText = course.deskripsi;
+      
+      const epCountBadge = document.getElementById("video-ep-count-badge");
+      if (epCountBadge) {
+        epCountBadge.innerText = `${course.episodes ? course.episodes.length : 1} Episode Tersedia`;
+      }
+
+      // Pastikan tombol tambah episode dalam modal mengikuti status admin
+      const modalAddEpBtn = document.getElementById("btn-modal-add-episode");
+      if (modalAddEpBtn) {
+        if (currentUser && currentUser.role === "Admin") {
+          modalAddEpBtn.classList.remove("hidden");
+        } else {
+          modalAddEpBtn.classList.add("hidden");
+        }
+      }
+
+      playSelectedEpisode(epIndex);
+      document.getElementById("video-modal").classList.remove("hidden");
+    }
+
+    function playSelectedEpisode(epIndex) {
+      if (!currentVideoCourse || !currentVideoCourse.episodes || !currentVideoCourse.episodes[epIndex]) return;
+      currentActiveEpIndex = epIndex;
+      const ep = currentVideoCourse.episodes[epIndex];
+
+      const iframe = document.getElementById("video-iframe");
+      if (iframe) iframe.src = `https://www.youtube.com/embed/${ep.youtube_id}?autoplay=1`;
+
+      document.getElementById("video-active-ep-badge").innerText = `Step / Episode ${ep.ep || (epIndex + 1)}`;
+      document.getElementById("video-active-duration").innerText = ep.durasi || "15:00";
+      document.getElementById("video-active-ep-title").innerText = ep.judul;
+
+      renderEpisodesList();
+    }
+
+    function renderEpisodesList() {
+      const listEl = document.getElementById("video-episodes-list");
+      if (!listEl || !currentVideoCourse || !currentVideoCourse.episodes) return;
+
+      listEl.innerHTML = "";
+      currentVideoCourse.episodes.forEach((ep, idx) => {
+        const isActive = idx === currentActiveEpIndex;
+        const btn = document.createElement("button");
+        btn.onclick = () => playSelectedEpisode(idx);
+        btn.className = `w-full text-left p-3.5 rounded-2xl border transition flex items-center justify-between gap-3 ${
+          isActive 
+            ? "bg-brand-50 border-brand-300 shadow-xs ring-1 ring-brand-400/30" 
+            : "bg-white hover:bg-slate-50 border-slate-200/80"
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+              isActive 
+                ? "bg-brand-600 text-white shadow-xs shadow-brand-500/30" 
+                : "bg-slate-100 text-slate-600"
+            }">
+              ${isActive ? '<i class="fa-solid fa-play text-[10px]"></i>' : (ep.ep || (idx + 1))}
+            </div>
+            <div class="min-w-0">
+              <h5 class="text-xs font-bold text-slate-800 truncate ${isActive ? 'text-brand-700' : ''}">
+                ${ep.judul}
+              </h5>
+              <div class="flex items-center gap-2 mt-0.5">
+                <span class="text-[10px] text-slate-400">Step ${idx + 1}</span>
+                <span class="text-[10px] text-slate-300">•</span>
+                <span class="text-[10px] text-slate-400"><i class="fa-regular fa-clock text-[9px]"></i> ${ep.durasi || '10:00'}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 flex-shrink-0">
+            ${isActive 
+              ? `<span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-ping"></span> Memutar</span>` 
+              : `<span class="px-2.5 py-1 rounded-lg bg-slate-100 group-hover:bg-brand-50 text-slate-600 text-[10px] font-semibold flex items-center gap-1"><i class="fa-solid fa-play text-[8px]"></i> Tonton</span>`
+            }
+          </div>
+        `;
+        listEl.appendChild(btn);
+      });
+    }
+
+    function closeVideoModal() {
+      const modal = document.getElementById("video-modal");
+      const iframe = document.getElementById("video-iframe");
+      if (iframe) iframe.src = "";
+      if (modal) modal.classList.add("hidden");
+      currentVideoCourse = null;
+    }
+
+    // ==========================================
+    // RENDER: SOURCE CODE (REVISI 2: DUAL TABS INDEX.HTML & CODE.GS)
+    // ==========================================
+    function renderCodes() {
+      const grid = document.getElementById("codes-grid");
+      const search = document.getElementById("search-code").value.toLowerCase();
+      const lang = document.getElementById("filter-code-lang").value;
+
+      grid.innerHTML = "";
+
+      const filtered = dbCodes.filter(c => {
+        const matchSearch = c.judul.toLowerCase().includes(search) || c.deskripsi.toLowerCase().includes(search);
+        const matchLang = lang === "all" || c.bahasa === lang;
+        return matchSearch && matchLang;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Tidak ada source code yang ditemukan.</div>`;
+        return;
+      }
+
+      filtered.forEach(c => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col justify-between hover:shadow-md transition";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-brand-700 border border-brand-200/50">Full Stack GAS</span>
+              <a href="${c.repo_url}" target="_blank" class="text-[11px] font-semibold text-slate-500 hover:text-slate-800 flex items-center gap-1">
+                <i class="fa-brands fa-github"></i> Repository
+              </a>
+            </div>
+            <h4 class="text-sm font-bold text-slate-800 mb-1">${c.judul}</h4>
+            <p class="text-xs text-slate-500 mb-3">${c.deskripsi}</p>
+
+            <!-- Tab Switcher Index.html / Code.gs -->
+            <div class="flex gap-1.5 mb-2 border-b border-slate-100 pb-2">
+              <button onclick="toggleCodeTab('${c.id_code}', 'index')" id="tab-btn-index-${c.id_code}" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1.5 transition">
+                <i class="fa-brands fa-html5 text-orange-500"></i> Index.html
+              </button>
+              <button onclick="toggleCodeTab('${c.id_code}', 'gs')" id="tab-btn-gs-${c.id_code}" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-file-code text-emerald-600"></i> Code.gs
+              </button>
+            </div>
+
+            <!-- Box Preview Index.html -->
+            <div id="code-content-index-${c.id_code}" class="bg-slate-900 rounded-xl p-3.5 relative overflow-x-auto mb-3 border border-slate-800 max-h-48">
+              <pre class="text-[11px] text-amber-300 font-mono leading-relaxed">${escapeHtml(c.code_index || '// Belum ada kode Index.html')}</pre>
+            </div>
+
+            <!-- Box Preview Code.gs -->
+            <div id="code-content-gs-${c.id_code}" class="hidden bg-slate-900 rounded-xl p-3.5 relative overflow-x-auto mb-3 border border-slate-800 max-h-48">
+              <pre class="text-[11px] text-emerald-400 font-mono leading-relaxed">${escapeHtml(c.code_gs || '// Belum ada kode Code.gs')}</pre>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-2 pt-3 border-t border-slate-100">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="copySpecificCode('${c.id_code}', 'index')" class="py-2 px-2.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition border border-orange-200">
+                <i class="fa-regular fa-copy"></i> Salin Index.html
+              </button>
+              <button onclick="copySpecificCode('${c.id_code}', 'gs')" class="py-2 px-2.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition border border-emerald-200">
+                <i class="fa-regular fa-copy"></i> Salin Code.gs
+              </button>
+            </div>
+            ${currentUser && currentUser.role === 'Admin' ? `
+              <div class="flex justify-end gap-2 pt-1">
+                <button onclick="openEditCodeModal('${c.id_code}')" title="Edit" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1 text-xs transition">
+                  <i class="fa-solid fa-pen"></i> Edit Kode
+                </button>
+                <button onclick="deleteCode('${c.id_code}')" title="Hapus" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center gap-1 text-xs transition">
+                  <i class="fa-solid fa-trash"></i> Hapus
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleCodeTab(codeId, type) {
+      const boxIndex = document.getElementById(`code-content-index-${codeId}`);
+      const boxGs = document.getElementById(`code-content-gs-${codeId}`);
+      const btnIndex = document.getElementById(`tab-btn-index-${codeId}`);
+      const btnGs = document.getElementById(`tab-btn-gs-${codeId}`);
+
+      if (type === 'index') {
+        boxIndex.classList.remove('hidden');
+        boxGs.classList.add('hidden');
+        btnIndex.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1.5 transition';
+        btnGs.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 flex items-center gap-1.5 transition';
+      } else {
+        boxIndex.classList.add('hidden');
+        boxGs.classList.remove('hidden');
+        btnGs.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1.5 transition';
+        btnIndex.className = 'px-2.5 py-1 rounded-lg text-[11px] font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200 flex items-center gap-1.5 transition';
+      }
+    }
+
+    function copySpecificCode(id, type) {
+      const item = dbCodes.find(c => c.id_code === id);
+      if (!item) return;
+
+      const codeToCopy = type === 'index' ? item.code_index : item.code_gs;
+      const label = type === 'index' ? 'Index.html' : 'Code.gs';
+
+      navigator.clipboard.writeText(codeToCopy || '').then(() => {
+        showToast(`Source code ${label} berhasil disalin!`, "success");
+      }).catch(() => {
+        showToast(`Gagal menyalin ${label}`, "error");
+      });
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    }
+
+    // ==========================================
+    // RENDER: TOOL PILIHAN (REVISI 4: DILENGKAPI COVER)
+    // ==========================================
+    function renderTools() {
+      const grid = document.getElementById("tools-grid");
+      const search = document.getElementById("search-tool").value.toLowerCase();
+      const cat = document.getElementById("filter-tool-cat").value;
+
+      grid.innerHTML = "";
+
+      const filtered = dbTools.filter(t => {
+        const matchSearch = t.nama.toLowerCase().includes(search) || t.deskripsi.toLowerCase().includes(search);
+        const matchCat = cat === "all" || t.kategori === cat;
+        return matchSearch && matchCat;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="col-span-full py-12 text-center text-slate-400 text-xs">Tidak ada tool pilihan yang cocok.</div>`;
+        return;
+      }
+
+      filtered.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition";
+        card.innerHTML = `
+          <div>
+            ${t.cover_url ? `
+              <div class="aspect-video w-full bg-slate-100 overflow-hidden relative border-b border-slate-100">
+                <img src="${t.cover_url}" alt="${t.nama}" class="w-full h-full object-cover">
+              </div>
+            ` : ''}
+            <div class="p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-brand-600 flex items-center justify-center text-base">
+                  <i class="${t.icon || 'fa-solid fa-cube'}"></i>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">${t.kategori}</span>
+              </div>
+              <h4 class="text-sm font-bold text-slate-800 mb-1">${t.nama}</h4>
+              <p class="text-xs text-slate-500">${t.deskripsi}</p>
+            </div>
+          </div>
+
+          <div class="p-5 pt-0">
+            <div class="flex items-center gap-2 pt-3 border-t border-slate-100">
+              <a href="${t.link_url}" target="_blank" class="flex-1 py-2 rounded-xl bg-brand-50 hover:bg-brand-100 text-brand-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition">
+                <span>Buka Tool</span>
+                <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+              </a>
+              ${currentUser && currentUser.role === 'Admin' ? `
+                <button onclick="openEditToolModal('${t.id_tool}')" title="Edit" class="w-8 h-8 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center justify-center text-xs transition">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button onclick="deleteTool('${t.id_tool}')" title="Hapus" class="w-8 h-8 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center justify-center text-xs transition">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // RENDER: MEMBER MANAGEMENT
+    // ==========================================
+    function renderMembers() {
+      const tbody = document.getElementById("members-table-body");
+      if (!tbody) return;
+      const search = (document.getElementById("search-member")?.value || "").toLowerCase();
+      tbody.innerHTML = "";
+
+      const filtered = dbUsers.filter(u => 
+        u.nama.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
+      );
+
+      const countEl = document.getElementById("member-table-count");
+      if (countEl) countEl.innerText = `${filtered.length} Orang`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-slate-400">Tidak ada member ditemukan.</td></tr>`;
+        return;
+      }
+
+      const now = Date.now();
+
+      filtered.forEach(u => {
+        const lastActiveTime = u.last_active ? new Date(u.last_active).getTime() : 0;
+        const isOnline = lastActiveTime > 0 && (now - lastActiveTime) <= ONLINE_THRESHOLD_MS;
+        const relativeTime = formatRelativeTime(u.last_active);
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/70 transition";
+        tr.innerHTML = `
+          <td class="px-5 py-3.5">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs">
+                ${u.nama.charAt(0)}
+              </div>
+              <div class="font-bold text-slate-800">${u.nama}</div>
+            </div>
+          </td>
+          <td class="px-4 py-3.5 font-mono text-slate-600">${u.email}</td>
+          <td class="px-4 py-3.5">
+            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}">
+              ${u.role}
+            </span>
+          </td>
+          <td class="px-4 py-3.5">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${isOnline ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
+              <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
+              ${isOnline ? 'Online' : 'Offline'}
+            </span>
+          </td>
+          <td class="px-4 py-3.5 text-slate-500 text-[11px]">${relativeTime}</td>
+          <td class="px-4 py-3.5 text-right admin-only ${currentUser && currentUser.role === 'Admin' ? '' : 'hidden'}">
+            ${u.email !== 'admin@portal.id' ? `
+              <button onclick="deleteMember('${u.id_user}')" title="Hapus Akses Member" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            ` : '<span class="text-[10px] text-slate-300 italic">Protected</span>'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function formatRelativeTime(isoString) {
+      if (!isoString) return "Belum pernah";
+      const diffSec = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
+      if (diffSec < 60) return "Baru saja";
+      if (diffSec < 3600) return `${Math.floor(diffSec / 60)} menit lalu`;
+      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} jam lalu`;
+      return `${Math.floor(diffSec / 86400)} hari lalu`;
+    }
+
+    // ==========================================
+    // MODAL FORMULIR DINAMIS & CRUD (DILENGKAPI UPLOAD GAMBAR DRIVE)
+    // ==========================================
+    let currentFormType = null;
+    let currentEditId = null;
+    let currentUploadedCover = ""; // Penyimpan base64/Drive cover sementara
+
+    function openFormModal(title, type, fields, editId = null) {
+      currentFormType = type;
+      currentEditId = editId;
+      currentUploadedCover = "";
+
+      document.getElementById("form-modal-title").innerText = title;
+      const fieldsContainer = document.getElementById("form-fields");
+      fieldsContainer.innerHTML = "";
+
+      fields.forEach(f => {
+        const div = document.createElement("div");
+        div.innerHTML = `<label class="block text-xs font-bold text-slate-600 mb-1">${f.label}</label>`;
+
+        if (f.type === "textarea") {
+          div.innerHTML += `<textarea id="${f.id}" rows="${f.rows || 3}" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50 font-mono" required>${f.value || ''}</textarea>`;
+        } else if (f.type === "select") {
+          let opts = f.options.map(o => `<option value="${o}" ${f.value === o ? 'selected' : ''}>${o}</option>`).join("");
+          div.innerHTML += `<select id="${f.id}" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50">${opts}</select>`;
+        } else if (f.type === "file") {
+          currentUploadedCover = f.value || "";
+          div.innerHTML += `
+            <div class="space-y-2">
+              <input type="file" id="${f.id}" accept="image/*" onchange="handleCoverImageUpload(this, 'preview-${f.id}')" class="w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 cursor-pointer">
+              <div id="preview-${f.id}" class="aspect-video w-full rounded-xl bg-slate-100 border border-slate-200 overflow-hidden ${currentUploadedCover ? '' : 'hidden'}">
+                <img src="${currentUploadedCover || ''}" class="w-full h-full object-cover">
+              </div>
+              <p class="text-[10px] text-slate-400">Pilih gambar langsung dari galeri HP atau folder laptop (terkoneksi Drive).</p>
+            </div>
+          `;
+        } else {
+          div.innerHTML += `<input type="${f.type || 'text'}" id="${f.id}" value="${f.value || ''}" class="w-full p-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-slate-50" ${f.required !== false ? 'required' : ''}>`;
+        }
+        fieldsContainer.appendChild(div);
+      });
+
+      document.getElementById("form-modal").classList.remove("hidden");
+    }
+
+    function handleCoverImageUpload(inputEl, previewId) {
+      const file = inputEl.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        currentUploadedCover = e.target.result;
+        const previewContainer = document.getElementById(previewId);
+        if (previewContainer) {
+          previewContainer.classList.remove("hidden");
+          previewContainer.innerHTML = `<img src="${currentUploadedCover}" class="w-full h-full object-cover">`;
+        }
+        showToast("Cover gambar berhasil dimuat!", "success");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function closeFormModal() {
+      document.getElementById("form-modal").classList.add("hidden");
+      currentFormType = null;
+      currentEditId = null;
+      currentUploadedCover = "";
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+
+      if (currentFormType === "prompt") {
+        const judul = document.getElementById("f-judul").value.trim();
+        const kategori = document.getElementById("f-kategori").value;
+        const isi_prompt = document.getElementById("f-isi").value.trim();
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan ke Spreadsheet...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "savePrompt",
+                token: currentUser.token,
+                id_prompt: currentEditId,
+                judul,
+                kategori,
+                isi_prompt,
+                author: currentUser.nama
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal menyimpan prompt ke GAS:", err);
+          }
+        }
+
+        if (currentEditId) {
+          const item = dbPrompts.find(p => p.id_prompt === currentEditId);
+          if (item) {
+            item.judul = judul;
+            item.kategori = kategori;
+            item.isi_prompt = isi_prompt;
+            showToast("Prompt berhasil diperbarui!", "success");
+          }
+        } else {
+          dbPrompts.push({
+            id_prompt: "p-" + Date.now(),
+            judul,
+            kategori,
+            isi_prompt,
+            author: currentUser ? currentUser.nama : "Admin",
+            created_at: new Date().toISOString().split("T")[0]
+          });
+          showToast("Prompt baru berhasil ditambahkan di urutan bawah!", "success");
+        }
+        renderPrompts();
+        renderDashboard();
+
+      } else if (currentFormType === "video") {
+        const judul = document.getElementById("f-video-judul").value.trim();
+        const kategori = document.getElementById("f-video-kategori").value;
+        const cover_url = document.getElementById("f-video-cover").value.trim() || "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80";
+        const deskripsi = document.getElementById("f-video-desk").value.trim();
+        const rawEps = document.getElementById("f-video-episodes").value.trim();
+
+        const episodes = rawEps.split("\n").filter(line => line.trim().length > 0).map((line, idx) => {
+          const parts = line.split("|").map(p => p.trim());
+          return {
+            ep: idx + 1,
+            judul: parts[0] || `Episode ${idx + 1}`,
+            youtube_id: parts[1] || "dQw4w9WgXcQ",
+            durasi: parts[2] || "15:00"
+          };
+        });
+
+        if (episodes.length === 0) {
+          episodes.push({ ep: 1, judul: judul, youtube_id: "dQw4w9WgXcQ", durasi: "15:00" });
+        }
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan video ke Spreadsheet...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "saveVideo",
+                token: currentUser.token,
+                id_video: currentEditId,
+                judul,
+                kategori,
+                cover_url,
+                deskripsi,
+                episodes
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal menyimpan video ke GAS:", err);
+          }
+        }
+
+        if (currentEditId) {
+          const item = dbVideos.find(v => v.id_video === currentEditId);
+          if (item) {
+            item.judul = judul;
+            item.kategori = kategori;
+            item.cover_url = cover_url;
+            item.deskripsi = deskripsi;
+            item.episodes = episodes;
+            showToast("Tutorial & daftar episode berhasil diperbarui!", "success");
+          }
+        } else {
+          dbVideos.unshift({
+            id_video: "v-" + Date.now(),
+            judul,
+            kategori,
+            cover_url,
+            deskripsi,
+            episodes
+          });
+          showToast("Tutorial baru & episode berhasil ditambahkan!", "success");
+        }
+        renderVideos();
+
+      } else if (currentFormType === "add_episode") {
+        const course = dbVideos.find(v => v.id_video === currentEditId);
+        if (course) {
+          if (!course.episodes) course.episodes = [];
+          const epJudul = document.getElementById("f-ep-judul").value.trim();
+          const rawYt = document.getElementById("f-ep-yt").value.trim();
+          const durasi = document.getElementById("f-ep-durasi").value.trim() || "15:00";
+          const ytId = extractYoutubeId(rawYt);
+
+          const newEp = {
+            ep: course.episodes.length + 1,
+            judul: epJudul || `Episode ${course.episodes.length + 1}`,
+            youtube_id: ytId,
+            durasi: durasi
+          };
+
+          if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+            try {
+              showToast("Menambahkan episode ke server...", "info");
+              await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                  action: "addEpisode",
+                  token: currentUser.token,
+                  id_video: course.id_video,
+                  judul: newEp.judul,
+                  youtube_id: newEp.youtube_id,
+                  durasi: newEp.durasi
+                })
+              });
+            } catch (err) {
+              console.warn("Gagal tambah episode ke GAS:", err);
+            }
+          }
+
+          course.episodes.push(newEp);
+          showToast(`Episode ${newEp.ep} berhasil ditambahkan ke "${course.judul}"!`, "success");
+          renderVideos();
+
+          if (currentVideoCourse && currentVideoCourse.id_video === course.id_video) {
+            const epCountBadge = document.getElementById("video-ep-count-badge");
+            if (epCountBadge) epCountBadge.innerText = `${course.episodes.length} Episode Tersedia`;
+            renderEpisodesList();
+          }
+        }
+
+      } else if (currentFormType === "code") {
+        const judul = document.getElementById("f-code-judul").value.trim();
+        const deskripsi = document.getElementById("f-code-desk").value.trim();
+        const code_index = document.getElementById("f-code-index").value;
+        const code_gs = document.getElementById("f-code-gs").value;
+        const repo_url = document.getElementById("f-code-repo").value.trim() || "#";
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan source code ke Spreadsheet...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "saveCode",
+                token: currentUser.token,
+                id_code: currentEditId,
+                judul,
+                deskripsi,
+                code_index,
+                code_gs,
+                repo_url
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal simpan source code ke GAS:", err);
+          }
+        }
+
+        if (currentEditId) {
+          const item = dbCodes.find(c => c.id_code === currentEditId);
+          if (item) {
+            item.judul = judul;
+            item.deskripsi = deskripsi;
+            item.code_index = code_index;
+            item.code_gs = code_gs;
+            item.repo_url = repo_url;
+            showToast("Source code Index.html & Code.gs berhasil diperbarui!", "success");
+          }
+        } else {
+          dbCodes.unshift({
+            id_code: "c-" + Date.now(),
+            judul,
+            bahasa: "GAS + HTML",
+            deskripsi,
+            code_index,
+            code_gs,
+            repo_url
+          });
+          showToast("Source code baru (Index.html & Code.gs) berhasil disimpan!", "success");
+        }
+        renderCodes();
+
+      } else if (currentFormType === "tool") {
+        const nama = document.getElementById("f-tool-nama").value.trim();
+        const kategori = document.getElementById("f-tool-cat").value;
+        const icon = document.getElementById("f-tool-icon").value.trim() || "fa-solid fa-cube";
+        const link_url = document.getElementById("f-tool-link").value.trim();
+        const deskripsi = document.getElementById("f-tool-desk").value.trim();
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Menyimpan tool ke Spreadsheet & Drive...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "saveTool",
+                token: currentUser.token,
+                id_tool: currentEditId,
+                nama,
+                kategori,
+                icon,
+                link_url,
+                deskripsi,
+                cover_url: currentUploadedCover
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal simpan tool ke GAS:", err);
+          }
+        }
+
+        if (currentEditId) {
+          const item = dbTools.find(t => t.id_tool === currentEditId);
+          if (item) {
+            item.nama = nama;
+            item.kategori = kategori;
+            item.icon = icon;
+            item.link_url = link_url;
+            item.deskripsi = deskripsi;
+            if (currentUploadedCover) item.cover_url = currentUploadedCover;
+            showToast("Tool pilihan berhasil diperbarui!", "success");
+          }
+        } else {
+          dbTools.unshift({
+            id_tool: "t-" + Date.now(),
+            nama,
+            kategori,
+            cover_url: currentUploadedCover || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
+            icon,
+            link_url,
+            deskripsi
+          });
+          showToast("Tool pilihan baru beserta cover berhasil disimpan!", "success");
+        }
+        renderTools();
+
+      } else if (currentFormType === "member") {
+        const email = document.getElementById("f-member-email").value.trim().toLowerCase();
+        const nama = document.getElementById("f-member-nama").value.trim();
+
+        if (dbUsers.some(u => u.email.toLowerCase() === email)) {
+          showToast("Email member ini sudah terdaftar!", "error");
+          return;
+        }
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            showToast("Mendaftarkan member ke Spreadsheet...", "info");
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "addMember",
+                token: currentUser.token,
+                email,
+                nama
+              })
+            });
+          } catch (err) {
+            console.warn("Gagal daftar member ke GAS:", err);
+          }
+        }
+
+        dbUsers.push({
+          id_user: "u-" + Date.now(),
+          email,
+          nama: nama || email.split("@")[0],
+          role: "Member",
+          last_active: null
+        });
+
+        showToast(`Member (${email}) berhasil didaftarkan!`, "success");
+        renderMembers();
+        document.getElementById("dash-total-members").innerText = dbUsers.length;
+      }
+
+      closeFormModal();
+    }
+
+    // Modal Helper: Prompts
+    function openAddPromptModal() {
+      openFormModal("Tambah Berkas Prompt Baru", "prompt", [
+        { id: "f-judul", label: "Judul Prompt", type: "text" },
+        { id: "f-kategori", label: "Kategori Prompt", type: "select", options: ["Edukasi", "Coding", "Produktivitas", "Kreatif", "Umum"] },
+        { id: "f-isi", label: "Isi Teks Prompt", type: "textarea", rows: 6 }
+      ]);
+    }
+
+    function deletePrompt(id) {
+      if (!currentUser || currentUser.role !== "Admin") {
+        showToast("Hanya Admin yang memiliki hak akses menghapus prompt!", "error");
+        return;
+      }
+      openConfirmModal("Hapus Prompt", "Hapus berkas prompt ini dari koleksi?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deletePrompt", id_prompt: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus prompt di server:", e);
+          }
+        }
+        dbPrompts = dbPrompts.filter(p => p.id_prompt !== id);
+        renderPrompts();
+        renderDashboard();
+        showToast("Berkas prompt telah dihapus.", "info");
+      });
+    }
+
+    // Modal Helper: Videos
+    function openAddVideoModal() {
+      openFormModal("Tambah Video Tutorial (Bisa 1 Episode Dulu)", "video", [
+        { id: "f-video-judul", label: "Judul Seri Tutorial (contoh: Tutorial Belajar AppScript Pemula)", type: "text" },
+        { id: "f-video-kategori", label: "Kategori", type: "select", options: ["Google Apps Script", "Web Development", "Prompt Engineering", "Tutorial Umum"] },
+        { id: "f-video-cover", label: "URL Cover Gambar Banner (opsional)", type: "text", required: false },
+        { id: "f-video-desk", label: "Deskripsi Tutorial", type: "textarea", rows: 3 },
+        { id: "f-video-episodes", label: "Episode Awal (Cukup 1 dulu, nanti bisa ditambah lagi. Format: Judul | YouTube_ID atau Link | Durasi)", type: "textarea", rows: 4, value: "Episode 1: Pengenalan Dasar Apps Script & Editor | dQw4w9WgXcQ | 10:15" }
+      ]);
+    }
+
+    // REVISI 1: Modal Tambah Episode Bertahap
+    function openAddEpisodeModal(courseId) {
+      const course = dbVideos.find(v => v.id_video === courseId);
+      if (!course) return;
+
+      const nextEpNum = (course.episodes ? course.episodes.length : 0) + 1;
+      openFormModal(`Tambah Episode ke: ${course.judul}`, "add_episode", [
+        { id: "f-ep-judul", label: `Judul Episode ${nextEpNum}`, type: "text", value: `Episode ${nextEpNum}: ` },
+        { id: "f-ep-yt", label: "YouTube Video ID atau Tautan Lengkap", type: "text", value: "dQw4w9WgXcQ" },
+        { id: "f-ep-durasi", label: "Estimasi Durasi (contoh: 15:30)", type: "text", value: "15:00" }
+      ], courseId);
+    }
+
+    function openEditVideoModal(id) {
+      const v = dbVideos.find(item => item.id_video === id);
+      if (!v) return;
+      const rawEps = (v.episodes || []).map(ep => `${ep.judul} | ${ep.youtube_id} | ${ep.durasi}`).join("\n");
+      openFormModal("Edit Video Tutorial & Episode", "video", [
+        { id: "f-video-judul", label: "Judul Seri Tutorial", type: "text", value: v.judul },
+        { id: "f-video-kategori", label: "Kategori", type: "select", options: ["Google Apps Script", "Web Development", "Prompt Engineering", "Tutorial Umum"], value: v.kategori },
+        { id: "f-video-cover", label: "URL Cover Gambar Banner", type: "text", value: v.cover_url },
+        { id: "f-video-desk", label: "Deskripsi Tutorial", type: "textarea", rows: 3, value: v.deskripsi },
+        { id: "f-video-episodes", label: "Daftar Episode (Format: Judul Episode | YouTube_ID | Durasi)", type: "textarea", rows: 5, value: rawEps }
+      ], id);
+    }
+
+    function deleteVideo(id) {
+      openConfirmModal("Hapus Video", "Hapus video tutorial ini beserta seluruh episodenya?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deleteVideo", id_video: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus video di server:", e);
+          }
+        }
+        dbVideos = dbVideos.filter(v => v.id_video !== id);
+        renderVideos();
+        showToast("Video tutorial telah dihapus.", "info");
+      });
+    }
+
+    // Modal Helper: Source Code (REVISI 2: Input Index.html & Code.gs)
+    function openAddCodeModal() {
+      openFormModal("Tambah Source Code (Index.html & Code.gs)", "code", [
+        { id: "f-code-judul", label: "Judul Source Code", type: "text" },
+        { id: "f-code-desk", label: "Deskripsi Singkat", type: "text" },
+        { id: "f-code-index", label: "Kode Index.html (Frontend)", type: "textarea", rows: 6 },
+        { id: "f-code-gs", label: "Kode Code.gs (Backend Google Apps Script)", type: "textarea", rows: 6 },
+        { id: "f-code-repo", label: "Link Repository GitHub (opsional)", type: "text", required: false }
+      ]);
+    }
+
+    function openEditCodeModal(id) {
+      const c = dbCodes.find(item => item.id_code === id);
+      if (!c) return;
+      openFormModal("Edit Source Code", "code", [
+        { id: "f-code-judul", label: "Judul Source Code", type: "text", value: c.judul },
+        { id: "f-code-desk", label: "Deskripsi Singkat", type: "text", value: c.deskripsi },
+        { id: "f-code-index", label: "Kode Index.html (Frontend)", type: "textarea", rows: 6, value: c.code_index },
+        { id: "f-code-gs", label: "Kode Code.gs (Backend Google Apps Script)", type: "textarea", rows: 6, value: c.code_gs },
+        { id: "f-code-repo", label: "Link Repository", type: "text", value: c.repo_url, required: false }
+      ], id);
+    }
+
+    function deleteCode(id) {
+      openConfirmModal("Hapus Source Code", "Hapus arsip source code ini?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deleteCode", id_code: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus code di server:", e);
+          }
+        }
+        dbCodes = dbCodes.filter(c => c.id_code !== id);
+        renderCodes();
+        showToast("Source code telah dihapus.", "info");
+      });
+    }
+
+    // Modal Helper: Tools (Dengan Upload Cover)
+    function openAddToolModal() {
+      openFormModal("Tambah Tool Pilihan", "tool", [
+        { id: "f-tool-nama", label: "Nama Tool", type: "text" },
+        { id: "f-tool-cat", label: "Kategori", type: "select", options: ["AI Assistant", "Developer", "Desain", "Produktivitas"] },
+        { id: "f-tool-cover", label: "Cover Gambar (Upload dari HP / Komputer)", type: "file" },
+        { id: "f-tool-icon", label: "Icon FontAwesome (contoh: fa-solid fa-cube)", type: "text" },
+        { id: "f-tool-link", label: "URL Akses Website Tool", type: "text" },
+        { id: "f-tool-desk", label: "Deskripsi Fungsi", type: "textarea", rows: 3 }
+      ]);
+    }
+
+    function openEditToolModal(id) {
+      const t = dbTools.find(item => item.id_tool === id);
+      if (!t) return;
+      openFormModal("Edit Tool Pilihan", "tool", [
+        { id: "f-tool-nama", label: "Nama Tool", type: "text", value: t.nama },
+        { id: "f-tool-cat", label: "Kategori", type: "select", options: ["AI Assistant", "Developer", "Desain", "Produktivitas"], value: t.kategori },
+        { id: "f-tool-cover", label: "Cover Gambar (Upload dari HP / Komputer)", type: "file", value: t.cover_url },
+        { id: "f-tool-icon", label: "Icon FontAwesome", type: "text", value: t.icon },
+        { id: "f-tool-link", label: "URL Akses Website Tool", type: "text", value: t.link_url },
+        { id: "f-tool-desk", label: "Deskripsi Fungsi", type: "textarea", rows: 3, value: t.deskripsi }
+      ], id);
+    }
+
+    function deleteTool(id) {
+      openConfirmModal("Hapus Tool", "Hapus tautan tool pilihan ini?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deleteTool", id_tool: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus tool di server:", e);
+          }
+        }
+        dbTools = dbTools.filter(t => t.id_tool !== id);
+        renderTools();
+        showToast("Tool telah dihapus.", "info");
+      });
+    }
+
+    // Modal Helper: Members
+    function openAddMemberModal() {
+      openFormModal("Daftarkan Email Member Baru", "member", [
+        { id: "f-member-email", label: "Email Member (Untuk Akses Masuk)", type: "email" },
+        { id: "f-member-nama", label: "Nama Lengkap Member", type: "text" }
+      ]);
+    }
+
+    function deleteMember(id) {
+      openConfirmModal("Hapus Akses Member", "Member ini tidak akan dapat login lagi ke portal. Lanjutkan?", async () => {
+        if (!IS_PREVIEW && currentUser) {
+          try {
+            await fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({ action: "deleteMember", id_user: id, token: currentUser.token })
+            });
+          } catch (e) {
+            console.warn("Gagal hapus member di server:", e);
+          }
+        }
+        dbUsers = dbUsers.filter(u => u.id_user !== id);
+        renderMembers();
+        document.getElementById("dash-total-members").innerText = dbUsers.length;
+        updateOnlineMetrics();
+        showToast("Akses member berhasil dicabut.", "info");
+      });
+    }
+
+    // ==========================================
+    // RESTORE SESI
+    // ==========================================
+    window.addEventListener("DOMContentLoaded", () => {
+      // Inisialisasi cover prompt dari penyimpanan lokal jika tersedia
+      const heroImg = document.getElementById("prompt-hero-cover-img");
+      if (heroImg && promptHeroCover) heroImg.src = promptHeroCover;
+
+      const savedSession = localStorage.getItem("portal_session");
+      if (savedSession) {
+        try {
+          currentUser = JSON.parse(savedSession);
+          setupAppForUser();
+        } catch (e) {
+          localStorage.removeItem("portal_session");
+        }
+      }
+    });
+  </script>
+</body>
+</html>
