@@ -72,7 +72,7 @@
   </div>
 
   <!-- ========================================== -->
-  <!-- MODAL FORMULIR UNIVERSAL (PROMPT/VIDEO/DLL)-->
+  <!-- MODAL FORMULIR UNIVERSAL                   -->
   <!-- ========================================== -->
   <div id="form-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-40 hidden flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 my-8">
@@ -99,7 +99,6 @@
   <!-- ========================================== -->
   <div id="video-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
     <div class="bg-white rounded-3xl overflow-hidden max-w-4xl w-full shadow-2xl relative border border-slate-200/80 my-auto max-h-[92vh] flex flex-col">
-      <!-- Modal Topbar -->
       <div class="flex justify-between items-center px-5 py-3.5 bg-slate-900 text-white border-b border-slate-800 flex-shrink-0">
         <div class="flex items-center gap-2.5 min-w-0 pr-3">
           <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse flex-shrink-0"></span>
@@ -110,14 +109,11 @@
         </button>
       </div>
       
-      <!-- Video Frame Container -->
       <div class="aspect-video w-full bg-black flex-shrink-0 relative shadow-inner">
         <iframe id="video-iframe" class="w-full h-full" src="" title="Video Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
 
-      <!-- Episode Info & Playlist Area -->
       <div class="p-5 sm:p-6 overflow-y-auto space-y-5 bg-slate-50/60">
-        <!-- Sedang Diputar Bar -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
             <div class="flex items-center gap-2">
@@ -132,7 +128,6 @@
           </span>
         </div>
 
-        <!-- Section Daftar Episode / Step-by-Step -->
         <div>
           <div class="flex items-center justify-between mb-3">
             <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -140,19 +135,15 @@
             </h4>
             <div class="flex items-center gap-2">
               <span id="video-ep-count-badge" class="text-[11px] text-slate-500 font-semibold">4 Episode Tersedia</span>
-              <!-- REVISI 1: Tombol Tambah Episode Bertahap untuk Admin -->
               <button id="btn-modal-add-episode" onclick="openAddEpisodeModal(currentVideoCourse?.id_video)" class="admin-only hidden px-2.5 py-1 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-semibold flex items-center gap-1 shadow-xs transition">
                 <i class="fa-solid fa-plus text-[9px]"></i>
                 <span>Tambah Episode</span>
               </button>
             </div>
           </div>
-          <div id="video-episodes-list" class="space-y-2">
-            <!-- Diinjeksi via JS -->
-          </div>
+          <div id="video-episodes-list" class="space-y-2"></div>
         </div>
 
-        <!-- Deskripsi Materi Kursus -->
         <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
           <h5 class="text-xs font-bold text-slate-700 mb-1">Deskripsi Tutorial</h5>
           <p id="video-modal-description" class="text-xs text-slate-500 leading-relaxed"></p>
@@ -168,7 +159,7 @@
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 my-8">
       <div class="flex justify-between items-start mb-4 pb-3 border-b border-slate-100">
         <div>
-          <span id="detail-prompt-kategori" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200"></span>
+          <span id="detail-prompt-kategori" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200 uppercase tracking-wider"></span>
           <h3 id="detail-prompt-judul" class="text-sm font-bold text-slate-800 mt-1"></h3>
         </div>
         <button onclick="closeViewPromptModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 flex items-center justify-center transition">
@@ -204,7 +195,6 @@
         <p class="text-xs text-slate-500 mt-1">Platform Prompt AI, Video, Source Code &amp; Tools</p>
       </div>
 
-      <!-- Formulir Login (Cukup Email untuk Member & Admin Tanpa Password) -->
       <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
         <div>
           <label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5">Alamat Email Terdaftar</label>
@@ -223,13 +213,12 @@
         </button>
       </form>
 
-      <!-- Info Status Sistem -->
       <div class="mt-6 p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 text-xs text-emerald-950 space-y-2">
         <div class="font-bold flex items-center gap-1.5 text-emerald-700 text-[11px]">
           <i class="fa-solid fa-circle-check"></i> Akses Berbasis Whitelist Email
         </div>
         <p class="text-[11px] leading-relaxed">
-          Semua pengguna (baik Member maupun Admin) dapat langsung masuk hanya dengan menginput email yang telah terdaftar. Sistem akan otomatis mendeteksi role Anda.
+          Semua pengguna dapat langsung masuk hanya dengan menginput email yang telah terdaftar di database.
         </p>
       </div>
     </div>
@@ -243,7 +232,6 @@
     <!-- SIDEBAR -->
     <aside id="app-sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300 z-30 fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0">
       
-      <!-- Logo Brand -->
       <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950/40">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 rounded-xl bg-brand-600 flex items-center justify-center text-white shadow-md shadow-brand-600/30 font-bold text-sm">
@@ -259,7 +247,7 @@
         </button>
       </div>
 
-      <!-- Menu Navigasi -->
+      <!-- Navigation Links (Hanya 6 Menu Utama) -->
       <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-white bg-brand-600/20 text-brand-400 border border-brand-500/30">
           <i class="fa-solid fa-chart-pie w-4 text-center"></i>
@@ -285,14 +273,8 @@
           <i class="fa-solid fa-cubes w-4 text-center"></i>
           <span>Template Aplikasi</span>
         </button>
-        <!-- REVISI 1: Menu Member hanya ditampilkan untuk Admin -->
-        <button onclick="switchTab('members')" id="nav-members" class="nav-btn admin-only hidden w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60">
-          <i class="fa-solid fa-users w-4 text-center"></i>
-          <span>Member</span>
-        </button>
       </nav>
 
-      <!-- Profil & Logout Bar -->
       <div class="p-3.5 border-t border-slate-800 bg-slate-950/40">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2.5 min-w-0">
@@ -303,7 +285,7 @@
               <div id="user-name" class="text-xs font-bold text-white truncate">Pengguna</div>
               <div class="flex items-center gap-1.5 mt-0.5">
                 <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="user-role-badge" class="text-[10px] text-slate-400 font-medium">Member</span>
+                <span id="user-role-badge" class="text-[10px] text-slate-400 font-medium">Aktif</span>
               </div>
             </div>
           </div>
@@ -314,7 +296,6 @@
       </div>
     </aside>
 
-    <!-- BACKDROP MOBILE -->
     <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-20 hidden md:hidden"></div>
 
     <!-- MAIN WRAPPER -->
@@ -330,13 +311,11 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <!-- Member Online Pill (Realtime) -->
           <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold shadow-xs">
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
             <span><span id="stat-online-pill">0</span> Online</span>
           </div>
 
-          <!-- Status Mode Badge -->
           <span id="preview-badge" class="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
             <i class="fa-solid fa-cloud text-emerald-600 text-xs"></i> Cloud Live
           </span>
@@ -350,8 +329,6 @@
         <!-- MENU 1: DASHBOARD                          -->
         <!-- ========================================== -->
         <section id="tab-dashboard" class="space-y-6">
-          
-          <!-- Banner Selamat Datang -->
           <div class="rounded-3xl bg-gradient-to-r from-brand-600 via-indigo-600 to-indigo-800 p-6 md:p-8 text-white relative overflow-hidden shadow-xl shadow-brand-500/10">
             <div class="relative z-10 max-w-2xl">
               <span class="px-3 py-1 rounded-full bg-white/20 text-[11px] font-semibold backdrop-blur-md inline-block mb-3">Portal Pembelajaran Terpadu</span>
@@ -361,12 +338,10 @@
             <div class="absolute -right-8 -bottom-8 w-56 h-56 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
           </div>
 
-          <!-- Grid Statistik Ringkasan -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Member Online</p>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Online</p>
                 <h3 class="text-2xl font-black text-emerald-600 mt-1 flex items-center gap-2">
                   <span id="dash-online-count">0</span>
                   <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
@@ -380,9 +355,9 @@
 
             <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Member</p>
+                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Terdaftar</p>
                 <h3 class="text-2xl font-black text-slate-800 mt-1" id="dash-total-members">0</h3>
-                <p class="text-[10px] text-slate-500 mt-0.5">Terdaftar resmi</p>
+                <p class="text-[10px] text-slate-500 mt-0.5">Pengguna aktif</p>
               </div>
               <div class="w-11 h-11 rounded-2xl bg-indigo-50 text-brand-600 flex items-center justify-center text-lg">
                 <i class="fa-solid fa-users"></i>
@@ -410,49 +385,7 @@
                 <i class="fa-solid fa-layer-group"></i>
               </div>
             </div>
-
           </div>
-
-          <!-- Akses Navigasi Cepat Dashboard -->
-          <div class="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-xs">
-            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <i class="fa-solid fa-compass text-brand-600"></i> Pintasan Menu Utama
-            </h3>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-              <button onclick="switchTab('prompts')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
-                <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-wand-magic-sparkles"></i>
-                </div>
-                <h4 class="text-xs font-bold text-slate-800">Koleksi Prompt</h4>
-                <p class="text-[11px] text-slate-500 mt-0.5">Jelajahi pustaka prompt siap pakai.</p>
-              </button>
-
-              <button onclick="switchTab('videos')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
-                <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-circle-play"></i>
-                </div>
-                <h4 class="text-xs font-bold text-slate-800">Video Tutorial</h4>
-                <p class="text-[11px] text-slate-500 mt-0.5">Tonton panduan visual interaktif.</p>
-              </button>
-
-              <button onclick="switchTab('codes')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-brand-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-code"></i>
-                </div>
-                <h4 class="text-xs font-bold text-slate-800">Source Code</h4>
-                <p class="text-[11px] text-slate-500 mt-0.5">Salin template skrip dan kode.</p>
-              </button>
-
-              <button onclick="switchTab('tools')" class="p-4 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-brand-50 hover:border-brand-200 text-left transition group">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-2.5 text-sm group-hover:scale-105 transition">
-                  <i class="fa-solid fa-screwdriver-wrench"></i>
-                </div>
-                <h4 class="text-xs font-bold text-slate-800">Tool Pilihan</h4>
-                <p class="text-[11px] text-slate-500 mt-0.5">Direktori perkakas kerja terkurasi.</p>
-              </button>
-            </div>
-          </div>
-
         </section>
 
         <!-- ========================================== -->
@@ -460,7 +393,6 @@
         <!-- ========================================== -->
         <section id="tab-prompts" class="hidden space-y-6">
           
-          <!-- 1. Bagian Atas: Gambar Hero & Tulisan Kumpulan Prompt -->
           <div class="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-xs">
             <div class="w-full h-48 sm:h-64 relative bg-slate-900 overflow-hidden">
               <img id="prompt-hero-cover-img" 
@@ -475,7 +407,6 @@
                 </span>
               </div>
 
-              <!-- REVISI 2: Tombol Ganti Cover dari HP / Komputer (Khusus Admin) -->
               <label class="admin-only hidden absolute top-4 right-4 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-900/80 hover:bg-slate-950 text-white text-xs font-semibold backdrop-blur-md shadow-lg transition flex items-center gap-2 border border-white/20 z-10">
                 <i class="fa-solid fa-camera"></i>
                 <span>Ganti Cover Banner</span>
@@ -490,10 +421,8 @@
             </div>
           </div>
 
-          <!-- 2. Bagian Terpisah: Wadah Berkas Kumpulan Prompt & List Judul -->
           <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 shadow-xs space-y-5">
             
-            <!-- Header Berkas Kumpulan Prompt -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
               <div class="flex items-center gap-3">
                 <div class="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-xl shadow-xs">
@@ -508,7 +437,6 @@
                 </div>
               </div>
 
-              <!-- Filter Pencarian & Tombol Tambah Prompt (Admin Saja) -->
               <div class="flex items-center gap-2.5">
                 <div class="relative w-full sm:w-64">
                   <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -525,10 +453,22 @@
               </div>
             </div>
 
-            <!-- List Item Prompt (Bawahnya Berisi Judul Prompt & Tombol Lihat/Salin di Kanan) -->
-            <div id="prompts-list" class="space-y-3">
-              <!-- Render otomatis via JavaScript -->
+            <!-- TAB PILIHAN PROMPT -->
+            <div class="pt-1">
+              <div class="flex items-center justify-between mb-2.5">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="fa-solid fa-layer-group text-brand-600"></i> Pilihan Kategori Prompt:
+                </span>
+                <button onclick="openAddPromptCategoryModal()" class="admin-only hidden px-3 py-1 rounded-xl border border-dashed border-brand-300 bg-brand-50/60 text-brand-700 hover:bg-brand-100 text-[11px] font-semibold flex items-center gap-1.5 transition">
+                  <i class="fa-solid fa-folder-plus text-[10px]"></i>
+                  <span>+ Tambah Pilihan</span>
+                </button>
+              </div>
+
+              <div id="prompt-categories-container" class="flex items-center gap-2 overflow-x-auto pb-2 flex-wrap"></div>
             </div>
+
+            <div id="prompts-list" class="space-y-3 pt-2"></div>
 
           </div>
 
@@ -548,7 +488,6 @@
             </button>
           </div>
 
-          <!-- Filter & Pencarian Video -->
           <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-80">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -566,7 +505,6 @@
             </select>
           </div>
 
-          <!-- Grid Daftar Video -->
           <div id="videos-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5"></div>
         </section>
 
@@ -584,7 +522,6 @@
             </button>
           </div>
 
-          <!-- Filter & Pencarian Code -->
           <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-80">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -602,7 +539,6 @@
             </select>
           </div>
 
-          <!-- Grid Daftar Code -->
           <div id="codes-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
         </section>
 
@@ -620,7 +556,6 @@
             </button>
           </div>
 
-          <!-- Filter & Pencarian Tool -->
           <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-80">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -638,12 +573,11 @@
             </select>
           </div>
 
-          <!-- Grid Daftar Tool -->
           <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
         </section>
 
         <!-- ========================================== -->
-        <!-- MENU BARU: TEMPLATE APLIKASI               -->
+        <!-- MENU 6: TEMPLATE APLIKASI                  -->
         <!-- ========================================== -->
         <section id="tab-templates" class="hidden space-y-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -656,7 +590,6 @@
             </button>
           </div>
 
-          <!-- Filter & Pencarian Template -->
           <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row gap-3 items-center justify-between">
             <div class="relative w-full sm:w-80">
               <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400 text-xs">
@@ -667,55 +600,7 @@
             </div>
           </div>
 
-          <!-- Grid Daftar Template Aplikasi -->
           <div id="templates-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-        </section>
-
-        <!-- ========================================== -->
-        <!-- MENU 6: MEMBER MANAGEMENT                  -->
-        <!-- ========================================== -->
-        <section id="tab-members" class="hidden space-y-6">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 class="text-lg font-black text-slate-800">Direktori &amp; Manajemen Member</h3>
-              <p class="text-xs text-slate-500">Daftar anggota resmi yang memiliki izin akses login ke portal.</p>
-            </div>
-            <button id="btn-add-member" onclick="openAddMemberModal()" class="admin-only hidden px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs shadow-md shadow-brand-500/20 flex items-center gap-2 transition">
-              <i class="fa-solid fa-user-plus text-[10px]"></i> Tambah Member Baru
-            </button>
-          </div>
-
-          <!-- Tabel Member Whitelist -->
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-            <div class="p-3.5 border-b border-slate-100 flex flex-col sm:flex-row gap-3 justify-between items-center bg-slate-50/50">
-              <div class="relative w-full sm:w-72">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 text-xs">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
-                <input type="text" id="search-member" oninput="renderMembers()" placeholder="Cari nama atau email..." 
-                  class="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500 bg-white">
-              </div>
-              <div class="text-xs text-slate-500 font-medium">
-                Total Anggota: <strong id="member-table-count" class="text-slate-800">0</strong>
-              </div>
-            </div>
-
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-slate-100/75 text-slate-700 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
-                  <tr>
-                    <th class="px-5 py-3.5">Nama Member</th>
-                    <th class="px-4 py-3.5">Email Akses</th>
-                    <th class="px-4 py-3.5">Role</th>
-                    <th class="px-4 py-3.5">Status Online</th>
-                    <th class="px-4 py-3.5">Aktivitas Terakhir</th>
-                    <th class="px-4 py-3.5 text-right admin-only hidden">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody id="members-table-body" class="divide-y divide-slate-100"></tbody>
-              </table>
-            </div>
-          </div>
         </section>
 
       </main>
@@ -728,76 +613,60 @@
   <!-- JAVASCRIPT LOGIC & STATE ENGINE            -->
   <!-- ========================================== -->
   <script>
-    // ==========================================
-    // KONFIGURASI ENGINE
-    // ==========================================
-    const IS_PREVIEW = false; // Mode Production aktif terhubung ke Google Apps Script
+    const IS_PREVIEW = false;
     const GAS_URL = "https://script.google.com/macros/s/AKfycbzRxD1upuq_B4D7w2JEL-eVRAylcUEsR94ORYIHxdAOTeZICz1rOfjb1a9ql7RbqgO5Tg/exec";
 
-    const HEARTBEAT_INTERVAL = 60 * 1000; // Ping setiap 1 menit
-    const ONLINE_THRESHOLD_MS = 5 * 60 * 1000; // Batas aktif < 5 menit dianggap online
+    const HEARTBEAT_INTERVAL = 60 * 1000;
+    const ONLINE_THRESHOLD_MS = 5 * 60 * 1000;
 
-    // State Pengguna Aktif
     let currentUser = null;
     let heartbeatTimer = null;
 
-    // REVISI 2: Cover Kumpulan Prompt tersimpan lokal / Drive
     let promptHeroCover = localStorage.getItem("prompt_hero_cover") || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80";
 
-    // Database Mocking (Mode Preview)
+    let dbPromptCategories = ["PROMPT SKILL", "PROMPT DESIGN WEBAPP"];
+    let activePromptCategory = "PROMPT SKILL";
+
     let dbUsers = [
       { id_user: "u-1", email: "admin@portal.id", nama: "Super Admin", role: "Admin", last_active: new Date().toISOString() },
-      { id_user: "u-2", email: "member@portal.id", nama: "Member Teladan", role: "Member", last_active: new Date().toISOString() },
-      { id_user: "u-3", email: "budi@portal.id", nama: "Budi Santoso", role: "Member", last_active: new Date(Date.now() - 2 * 60000).toISOString() },
-      { id_user: "u-4", email: "siti@portal.id", nama: "Siti Rahma", role: "Member", last_active: new Date(Date.now() - 30 * 60000).toISOString() },
-      { id_user: "u-5", email: "ahmad@portal.id", nama: "Ahmad Dahlan", role: "Member", last_active: new Date(Date.now() - 120 * 60000).toISOString() }
+      { id_user: "u-2", email: "member@portal.id", nama: "Pengguna Teladan", role: "Member", last_active: new Date().toISOString() }
     ];
 
-    // REVISI 3: Prompt kini mendukung Cover Image
     let dbPrompts = [
       {
         id_prompt: "p-1",
-        judul: "Pembuat Modul Ajar Kurikulum Merdeka",
-        kategori: "Edukasi",
-        cover_url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Menghasilkan kerangka modul ajar lengkap dengan tujuan, asesmen, dan alur bermakna.",
-        isi_prompt: "Bertindaklah sebagai Pakar Desain Kurikulum Pendidikan. Buatkan Modul Ajar lengkap untuk Mata Pelajaran [Sebutkan Pelajaran] Kelas [Sebutkan Kelas] dengan Topik [Sebutkan Topik]. Struktur wajib memuat: 1. Capaian Pembelajaran, 2. Alur Tujuan Pembelajaran, 3. Pertanyaan Pemantik, 4. Rincian Kegiatan Awal, Inti, dan Penutup, 5. Rubrik Asesmen Formatif.",
+        judul: "WEBAPP BUILDER GAS TO GITHUB",
+        kategori: "PROMPT SKILL",
+        isi_prompt: "Anda adalah Software Engineer Senior spesialis Google Apps Script dan GitHub Pages. Rancang kode integrasi REST API doGet dan doPost lengkap dengan validasi session.",
         author: "Admin",
         created_at: "2026-11-01"
       },
       {
         id_prompt: "p-2",
-        judul: "Generator Google Apps Script CRUD Spreadsheet",
-        kategori: "Coding",
-        cover_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Prompt spesialis untuk menghasilkan backend GAS yang aman dengan LockService dan doPost.",
-        isi_prompt: "Anda adalah Software Engineer Senior spesialis Google Apps Script. Buatkan fungsi doGet() dan doPost(e) lengkap untuk operasi CRUD data ke Google Spreadsheet ID [ID_SHEET]. Wajib terapkan LockService.getScriptLock(), validasi token, penanganan error try-catch, dan format respon JSON yang terstandarisasi.",
+        judul: "WEBAPP BUILDER FULL GAS",
+        kategori: "PROMPT SKILL",
+        isi_prompt: "Bertindaklah sebagai Senior Fullstack Apps Script Architect. Bangun web aplikasi HTML Service dengan modul CRUD otomatis ke Google Sheets.",
         author: "Admin",
         created_at: "2026-11-02"
       },
       {
         id_prompt: "p-3",
-        judul: "Perancang Rubrik Penilaian Proyek Praktis",
-        kategori: "Edukasi",
-        cover_url: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Menyusun kriteria skala 1-4 untuk mengevaluasi karya siswa secara adil dan objektif.",
-        isi_prompt: "Susun tabel rubrik penilaian autentik 4 tingkatan (Perlu Bimbingan, Cukup, Baik, Sangat Baik) untuk evaluasi tugas proyek siswa: [Sebutkan Proyek]. Komponen penilaian harus meliputi: Kerapian, Kedalaman Analisis, Orisinalitas, dan Presentasi.",
+        judul: "MODERN DASHBOARD UI TAILWIND DESIGN",
+        kategori: "PROMPT DESIGN WEBAPP",
+        isi_prompt: "Rancang komponen Dashboard Interaktif menggunakan Tailwind CSS murni. Desain minimalis, clean, mobile-first, dan rounded-3xl.",
         author: "Admin",
         created_at: "2026-11-03"
       },
       {
         id_prompt: "p-4",
-        judul: "Prompt Desain UI Tailwind CSS Responsif",
-        kategori: "Kreatif",
-        cover_url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Prompt untuk AI generator dalam merancang antarmuka dashboard modern yang ramah mobile.",
-        isi_prompt: "Rancang komponen Card Dashboard interaktif menggunakan Tailwind CSS murni. Desain harus minimalis, modern, rounded-2xl, border halus, bayangan soft, mendukung dark/light contrast yang seimbang, dan 100% responsif pada smartphone.",
+        judul: "HIGH CONVERTING LANDING PAGE PROMPT",
+        kategori: "PROMPT DESIGN WEBAPP",
+        isi_prompt: "Buatkan prompt untuk mendesain Landing Page berkonversi tinggi dengan struktur Hero section, Social proof, Features, dan CTA optimal.",
         author: "Admin",
         created_at: "2026-11-04"
       }
     ];
 
-    // State Kursus & Episode Aktif
     let currentVideoCourse = null;
     let currentActiveEpIndex = 0;
 
@@ -807,63 +676,28 @@
         judul: "Tutorial Belajar AppScript Pemula",
         kategori: "Google Apps Script",
         cover_url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Panduan berurutan dan terstruktur mempelajari Google Apps Script dari dasar, pengelolaan database Google Sheets, hingga pembuatan API WebApp interaktif.",
+        deskripsi: "Panduan berurutan dan terstruktur mempelajari Google Apps Script dari dasar hingga pembuatan API WebApp interaktif.",
         episodes: [
           { ep: 1, judul: "Pengenalan Dasar Apps Script & Ekosistem Google", youtube_id: "dQw4w9WgXcQ", durasi: "10:15" },
           { ep: 2, judul: "Membaca, Menyaring & Menulis Data Spreadsheet", youtube_id: "dQw4w9WgXcQ", durasi: "14:20" },
           { ep: 3, judul: "Membangun Endpoint API doGet & doPost", youtube_id: "dQw4w9WgXcQ", durasi: "18:45" },
           { ep: 4, judul: "Integrasi Form Frontend HTML dengan Fetch API", youtube_id: "dQw4w9WgXcQ", durasi: "22:10" }
         ]
-      },
-      {
-        id_video: "v-2",
-        judul: "Membangun Autentikasi Whitelist Email dengan GAS",
-        kategori: "Google Apps Script",
-        cover_url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Sistem otentikasi login modern tanpa perlu register akun rumit, cukup memvalidasi email member ke spreadsheet.",
-        episodes: [
-          { ep: 1, judul: "Konsep Dasar Autentikasi Whitelist Spreadsheet", youtube_id: "dQw4w9WgXcQ", durasi: "08:30" },
-          { ep: 2, judul: "Membuat Token Session & Verifikasi Role Server", youtube_id: "dQw4w9WgXcQ", durasi: "15:40" },
-          { ep: 3, judul: "Mengamankan Hak Akses Frontend Berbasis Role", youtube_id: "dQw4w9WgXcQ", durasi: "12:15" }
-        ]
-      },
-      {
-        id_video: "v-3",
-        judul: "Trik Cepat Desain Antarmuka Tailwind CSS",
-        kategori: "Web Development",
-        cover_url: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&auto=format&fit=crop&q=80",
-        deskripsi: "Kiat menata layout grid, flexbox responsif, modal interaktif, dan palet warna profesional untuk dashboard.",
-        episodes: [
-          { ep: 1, judul: "Setup Tailwind CSS CDN & Konfigurasi Tema", youtube_id: "dQw4w9WgXcQ", durasi: "11:20" },
-          { ep: 2, judul: "Membuat Komponen Card & Grid Multi-device", youtube_id: "dQw4w9WgXcQ", durasi: "16:45" },
-          { ep: 3, judul: "Mendesain Drawer Sidebar & Modal Interaktif", youtube_id: "dQw4w9WgXcQ", durasi: "19:10" }
-        ]
       }
     ];
 
-    // REVISI 2: Source Code kini menyimpan Index.html & Code.gs secara terpisah
     let dbCodes = [
       {
         id_code: "c-1",
         judul: "Sistem Presensi Siswa Realtime Google Sheets",
         bahasa: "GAS + HTML",
         deskripsi: "Paket lengkap WebApp presensi otomatis terhubung ke database Google Sheets.",
-        code_index: `<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <title>Presensi Online</title>\n  <script src="https://cdn.tailwindcss.com"><\/script>\n</head>\n<body class="p-6 bg-slate-50">\n  <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow">\n    <h2 class="text-base font-bold mb-3">Presensi Siswa</h2>\n    <input id="nama" class="border p-2 w-full rounded mb-3 text-xs" placeholder="Nama Lengkap Siswa">\n    <button onclick="kirimPresensi()" class="w-full bg-indigo-600 text-white py-2 rounded text-xs">Kirim Kehadiran</button>\n  </div>\n</body>\n</html>`,
-        code_gs: `function doPost(e) {\n  const lock = LockService.getScriptLock();\n  lock.tryLock(10000);\n  try {\n    const payload = JSON.parse(e.postData.contents);\n    const ss = SpreadsheetApp.getActiveSpreadsheet();\n    const sheet = ss.getSheetByName('Presensi');\n    sheet.appendRow([new Date(), payload.nama, 'Hadir']);\n    return ContentService.createTextOutput(JSON.stringify({ status: 'success', message: 'Presensi tercatat!' }))\n      .setMimeType(ContentService.MimeType.JSON);\n  } catch (err) {\n    return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: err.toString() }))\n      .setMimeType(ContentService.MimeType.JSON);\n  } finally {\n    lock.releaseLock();\n  }\n}`,
-        repo_url: "https://github.com"
-      },
-      {
-        id_code: "c-2",
-        judul: "Portal Belajar Interaktif Boilerplate",
-        bahasa: "GAS + HTML",
-        deskripsi: "Template frontend dan backend Apps Script dengan sistem whitelist akun email.",
-        code_index: `<!DOCTYPE html>\n<html>\n<head>\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Portal Siswa</title>\n</head>\n<body>\n  <header><h1>Portal Belajar</h1></header>\n  <main id="konten"></main>\n</body>\n</html>`,
-        code_gs: `function doGet() {\n  return HtmlService.createHtmlOutputFromFile('index')\n    .setTitle('Portal Belajar')\n    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n}\n\nfunction setupDatabase() {\n  // Inisialisasi sheet otomatis\n}`,
+        code_index: `<!DOCTYPE html>\n<html lang="id">\n<head>\n  <meta charset="UTF-8">\n  <title>Presensi</title>\n</head>\n<body>\n  <h2>Presensi Siswa</h2>\n</body>\n</html>`,
+        code_gs: `function doPost(e) {\n  return ContentService.createTextOutput("OK");\n}`,
         repo_url: "https://github.com"
       }
     ];
 
-    // REVISI 4: Tools kini mendukung Cover Image
     let dbTools = [
       {
         id_tool: "t-1",
@@ -873,37 +707,9 @@
         cover_url: "https://images.unsplash.com/photo-1677442136019-21780efad99a?w=600&auto=format&fit=crop&q=80",
         link_url: "https://chatgpt.com",
         deskripsi: "Platform AI percakapan serbaguna untuk menyusun materi, prompt, dan analisis teks."
-      },
-      {
-        id_tool: "t-2",
-        nama: "Claude Anthropic",
-        kategori: "AI Assistant",
-        icon: "fa-solid fa-brain",
-        cover_url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&auto=format&fit=crop&q=80",
-        link_url: "https://claude.ai",
-        deskripsi: "Model AI dengan kemampuan analisis dokumen panjang dan penulisan kode terstruktur."
-      },
-      {
-        id_tool: "t-3",
-        nama: "GitHub Pages",
-        kategori: "Developer",
-        icon: "fa-brands fa-github",
-        cover_url: "https://images.unsplash.com/photo-1618401471353-b98aedd04e11?w=600&auto=format&fit=crop&q=80",
-        link_url: "https://pages.github.com",
-        deskripsi: "Layanan hosting gratis langsung dari repositori GitHub untuk web aplikasi statis."
-      },
-      {
-        id_tool: "t-4",
-        nama: "Canva Education",
-        kategori: "Desain",
-        icon: "fa-solid fa-palette",
-        cover_url: "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=600&auto=format&fit=crop&q=80",
-        link_url: "https://canva.com",
-        deskripsi: "Aplikasi desain grafis ramah pengguna untuk poster edukasi, banner, dan presentasi kelas."
       }
     ];
 
-    // Koleksi Template Aplikasi
     let dbTemplates = [
       {
         id_template: "tpl-1",
@@ -911,19 +717,10 @@
         deskripsi: "Sistem absensi berbasis WebApp Google Apps Script dilengkapi deteksi lokasi presensi dan rekapitulasi data otomatis ke Google Sheets.",
         cover_url: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80",
         demo_url: "https://google.com"
-      },
-      {
-        id_template: "tpl-2",
-        judul: "Sistem Informasi Manajemen Nilai & Raport",
-        deskripsi: "Template portal penilaian ujian siswa dengan pembuatan file raport otomatis dan visualisasi dashboard analitik capaian belajar.",
-        cover_url: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&auto=format&fit=crop&q=80",
-        demo_url: "https://google.com"
       }
     ];
 
-    // ==========================================
-    // NOTIFIKASI TOAST CUSTOM
-    // ==========================================
+    // NOTIFIKASI TOAST
     function showToast(message, type = "success") {
       const container = document.getElementById("toast-container");
       const toast = document.createElement("div");
@@ -951,9 +748,7 @@
       }, 3000);
     }
 
-    // ==========================================
-    // MODAL KONFIRMASI CUSTOM
-    // ==========================================
+    // MODAL KONFIRMASI
     let confirmCallback = null;
 
     function openConfirmModal(title, message, onConfirm) {
@@ -974,9 +769,7 @@
       closeConfirmModal();
     });
 
-    // ==========================================
-    // LOGIKA LOGIN & OTORISASI (TANPA PASSWORD) - ZERO LATENCY INSTANT
-    // ==========================================
+    // LOGIN
     async function handleLogin(e) {
       e.preventDefault();
       const email = document.getElementById("login-email").value.trim().toLowerCase();
@@ -986,7 +779,6 @@
         return;
       }
 
-      // 1. INSTANT LOGIN (0 Milidetik Jeda - Langsung Masuk ke Portal Seketika)
       const existingUser = dbUsers.find(u => u.email.toLowerCase() === email);
       const isAdminEmail = email === "admin@portal.id" || email.startsWith("admin@") || (existingUser && existingUser.role === "Admin");
       const detectedRole = isAdminEmail ? "Admin" : (existingUser ? existingUser.role : "Member");
@@ -1000,13 +792,11 @@
         token: existingUser && existingUser.token ? existingUser.token : ("session-" + Date.now())
       };
 
-      // Simpan sesi dan langsung alihkan tampilan aplikasi seketika tanpa jeda
       localStorage.setItem("portal_session", JSON.stringify(currentUser));
       updateUserHeartbeat(currentUser.email);
       setupAppForUser();
       showToast(`Selamat datang, ${currentUser.nama}!`, "success");
 
-      // 2. Sinkronisasi & Verifikasi Latar Belakang (Non-blocking Background Sync)
       if (!IS_PREVIEW) {
         fetch(GAS_URL, {
           method: "POST",
@@ -1018,14 +808,14 @@
             currentUser = Object.assign(currentUser, res.data);
             localStorage.setItem("portal_session", JSON.stringify(currentUser));
             document.getElementById("user-name").innerText = currentUser.nama;
-            document.getElementById("user-role-badge").innerText = currentUser.role;
+            document.getElementById("user-role-badge").innerText = currentUser.role === "Admin" ? "Admin" : "Aktif";
             const adminElements = document.querySelectorAll(".admin-only");
             adminElements.forEach(el => {
               if (currentUser.role === "Admin") el.classList.remove("hidden");
               else el.classList.add("hidden");
             });
+            renderPromptCategories();
           } else if (res.status === "error") {
-            // Jika email tidak terdaftar di whitelist Spreadsheet, keluarkan user & beri peringatan
             showToast(res.message || "Email tidak terdaftar dalam whitelist!", "error");
             clearInterval(heartbeatTimer);
             currentUser = null;
@@ -1057,11 +847,10 @@
       document.getElementById("view-app").classList.remove("hidden");
 
       document.getElementById("user-name").innerText = currentUser.nama;
-      document.getElementById("user-role-badge").innerText = currentUser.role;
+      document.getElementById("user-role-badge").innerText = currentUser.role === "Admin" ? "Admin" : "Aktif";
       document.getElementById("user-avatar").innerText = currentUser.nama.charAt(0);
       document.getElementById("welcome-text").innerText = `Halo, ${currentUser.nama}!`;
 
-      // Set cover prompt hero
       const heroImg = document.getElementById("prompt-hero-cover-img");
       if (heroImg && promptHeroCover) heroImg.src = promptHeroCover;
 
@@ -1079,7 +868,6 @@
       refreshAllData();
     }
 
-    // REVISI 2: Handler Ganti Cover Kumpulan Prompt dari HP / Laptop
     async function handlePromptHeroCoverUpload(inputEl) {
       const file = inputEl.files[0];
       if (!file) return;
@@ -1089,9 +877,7 @@
         promptHeroCover = e.target.result;
         try {
           localStorage.setItem("prompt_hero_cover", promptHeroCover);
-        } catch (err) {
-          console.warn("Storage quota full, using in-memory cover");
-        }
+        } catch (err) {}
         const img = document.getElementById("prompt-hero-cover-img");
         if (img) img.src = promptHeroCover;
 
@@ -1111,9 +897,7 @@
               promptHeroCover = res.url;
               if (img) img.src = res.url;
             }
-          } catch (err) {
-            console.warn("Gagal sinkron cover ke Drive:", err);
-          }
+          } catch (err) {}
         }
 
         showToast("Cover Kumpulan Prompt berhasil diperbarui!", "success");
@@ -1121,7 +905,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Helper: Ekstraksi YouTube ID dari Tautan Lengkap atau ID Mentah
     function extractYoutubeId(input) {
       if (!input) return "dQw4w9WgXcQ";
       const trimmed = input.trim();
@@ -1133,9 +916,7 @@
       return trimmed;
     }
 
-    // ==========================================
-    // SISTEM HEARTBEAT & HITUNG ONLINE
-    // ==========================================
+    // HEARTBEAT
     function updateUserHeartbeat(email) {
       const idx = dbUsers.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
       if (idx !== -1) {
@@ -1173,9 +954,7 @@
               const dashCount = document.getElementById("dash-online-count");
               if (dashCount) dashCount.innerText = res.onlineCount;
             }
-          } catch (e) {
-            console.warn("Heartbeat error", e);
-          }
+          } catch (e) {}
         }
       };
 
@@ -1191,9 +970,7 @@
       if (dashCount) dashCount.innerText = onlineCount;
     }
 
-    // ==========================================
-    // NAVIGASI MENU & TAB
-    // ==========================================
+    // NAVIGASI
     function toggleSidebar() {
       const sidebar = document.getElementById("app-sidebar");
       const backdrop = document.getElementById("sidebar-backdrop");
@@ -1209,32 +986,27 @@
     }
 
     function switchTab(tabId) {
-      // REVISI 1: Proteksi ketat hak akses menu Member khusus Admin
-      if (tabId === "members" && (!currentUser || currentUser.role !== "Admin")) {
-        showToast("Akses menu Member hanya diperuntukkan bagi Administrator!", "error");
-        return;
-      }
-
-      const tabs = ["dashboard", "prompts", "videos", "codes", "tools", "templates", "members"];
+      const tabs = ["dashboard", "prompts", "videos", "codes", "tools", "templates"];
       const titles = {
         dashboard: "Dashboard Overview",
         prompts: "Koleksi Prompt AI Terpilih",
         videos: "Galeri Video Tutorial",
         codes: "Arsip Template & Source Code",
         tools: "Direktori Tool Pilihan",
-        templates: "Katalog Template Aplikasi Web",
-        members: "Manajemen Member & Status Kehadiran"
+        templates: "Katalog Template Aplikasi Web"
       };
 
       tabs.forEach(t => {
         const sec = document.getElementById("tab-" + t);
         const btn = document.getElementById("nav-" + t);
-        if (t === tabId) {
-          sec.classList.remove("hidden");
-          btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-white bg-brand-600/20 text-brand-400 border border-brand-500/30";
-        } else {
-          sec.classList.add("hidden");
-          btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60";
+        if (sec && btn) {
+          if (t === tabId) {
+            sec.classList.remove("hidden");
+            btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-white bg-brand-600/20 text-brand-400 border border-brand-500/30";
+          } else {
+            sec.classList.add("hidden");
+            btn.className = "nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition text-slate-400 hover:text-white hover:bg-slate-800/60";
+          }
         }
       });
 
@@ -1251,7 +1023,6 @@
       if (tabId === "codes") renderCodes();
       if (tabId === "tools") renderTools();
       if (tabId === "templates") renderTemplates();
-      if (tabId === "members") renderMembers();
     }
 
     async function refreshAllData() {
@@ -1269,6 +1040,12 @@
             if (res.sourceCodes) dbCodes = res.sourceCodes;
             if (res.tools) dbTools = res.tools;
             if (res.templates) dbTemplates = res.templates;
+            if (res.promptCategories && res.promptCategories.length > 0) {
+              dbPromptCategories = res.promptCategories;
+              if (!dbPromptCategories.includes(activePromptCategory)) {
+                activePromptCategory = dbPromptCategories[0];
+              }
+            }
             if (res.settings && res.settings.prompt_hero_cover) {
               promptHeroCover = res.settings.prompt_hero_cover;
               const heroImg = document.getElementById("prompt-hero-cover-img");
@@ -1280,21 +1057,8 @@
               const dashCount = document.getElementById("dash-online-count");
               if (dashCount) dashCount.innerText = res.onlineCount;
             }
-            // Simpan cache data lokal agar akses berikutnya instan tanpa jeda loading
-            try {
-              localStorage.setItem("portal_cached_data", JSON.stringify({
-                users: dbUsers,
-                prompts: dbPrompts,
-                videos: dbVideos,
-                sourceCodes: dbCodes,
-                tools: dbTools,
-                templates: dbTemplates
-              }));
-            } catch (e) {}
           }
-        } catch (err) {
-          console.warn("Gagal memuat data dari GAS:", err);
-        }
+        } catch (err) {}
       }
       updateOnlineMetrics();
       renderDashboard();
@@ -1303,12 +1067,8 @@
       renderCodes();
       renderTools();
       renderTemplates();
-      renderMembers();
     }
 
-    // ==========================================
-    // RENDER: DASHBOARD (RINGKAS & BERSIH)
-    // ==========================================
     function renderDashboard() {
       updateOnlineMetrics();
       const elMembers = document.getElementById("dash-total-members");
@@ -1319,10 +1079,57 @@
       if (elResources) elResources.innerText = dbVideos.length + dbCodes.length;
     }
 
-    // ==========================================
-    // RENDER: KOLEKSI PROMPT
-    // ==========================================
+    // PROMPTS
+    function renderPromptCategories() {
+      const container = document.getElementById("prompt-categories-container");
+      if (!container) return;
+      container.innerHTML = "";
+
+      const isAdmin = currentUser && currentUser.role === "Admin";
+
+      dbPromptCategories.forEach(cat => {
+        const isActive = cat.toUpperCase() === activePromptCategory.toUpperCase();
+        const wrapper = document.createElement("div");
+        wrapper.className = "flex items-center group flex-shrink-0";
+
+        const btn = document.createElement("button");
+        btn.onclick = () => selectPromptCategory(cat);
+        btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+          isActive
+            ? "bg-brand-600 text-white shadow-md shadow-brand-500/25 ring-2 ring-brand-400/30"
+            : "bg-slate-100 hover:bg-slate-200 text-slate-600"
+        }`;
+        
+        btn.innerHTML = `
+          <i class="fa-solid fa-folder${isActive ? '-open' : ''} text-[11px] ${isActive ? 'text-white' : 'text-slate-400'}"></i>
+          <span>${cat}</span>
+        `;
+        wrapper.appendChild(btn);
+
+        if (isAdmin && dbPromptCategories.length > 1) {
+          const delBtn = document.createElement("button");
+          delBtn.title = `Hapus pilihan ${cat}`;
+          delBtn.className = "w-6 h-6 -ml-2 z-10 rounded-full bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-600 hover:text-white flex items-center justify-center text-[9px] shadow-xs transition";
+          delBtn.innerHTML = `<i class="fa-solid fa-xmark"></i>`;
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            deletePromptCategory(cat);
+          };
+          wrapper.appendChild(delBtn);
+        }
+
+        container.appendChild(wrapper);
+      });
+    }
+
+    function selectPromptCategory(cat) {
+      activePromptCategory = cat;
+      renderPrompts();
+    }
+
     function renderPrompts() {
+      renderPromptCategories();
+
       const listContainer = document.getElementById("prompts-list");
       if (!listContainer) return;
       const search = (document.getElementById("search-prompt")?.value || "").toLowerCase();
@@ -1330,7 +1137,10 @@
       listContainer.innerHTML = "";
 
       const filtered = dbPrompts.filter(p => {
-        return p.judul.toLowerCase().includes(search) || (p.isi_prompt && p.isi_prompt.toLowerCase().includes(search));
+        const pCat = (p.kategori || "").toUpperCase();
+        const matchCategory = pCat === activePromptCategory.toUpperCase();
+        const matchSearch = p.judul.toLowerCase().includes(search) || (p.isi_prompt && p.isi_prompt.toLowerCase().includes(search));
+        return matchCategory && matchSearch;
       });
 
       const countBadge = document.getElementById("prompt-total-badge");
@@ -1340,7 +1150,12 @@
         listContainer.innerHTML = `
           <div class="py-12 text-center text-slate-400">
             <i class="fa-regular fa-folder-open text-3xl mb-2 text-slate-300"></i>
-            <p class="text-xs">Tidak ada prompt yang sesuai dengan kata kunci pencarian.</p>
+            <p class="text-xs">Belum ada prompt pada pilihan <strong>"${activePromptCategory}"</strong>.</p>
+            ${currentUser && currentUser.role === 'Admin' ? `
+              <button onclick="openAddPromptModal()" class="mt-3 px-3 py-1.5 rounded-xl bg-brand-50 text-brand-700 text-xs font-semibold hover:bg-brand-100 transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-plus text-[10px]"></i> Tambah Prompt ke pilihan ini
+              </button>
+            ` : ''}
           </div>
         `;
         return;
@@ -1357,7 +1172,7 @@
             <div class="min-w-0">
               <h4 class="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-brand-700 transition truncate">${p.judul}</h4>
               <div class="flex items-center gap-2 mt-0.5">
-                <span class="text-[10px] text-brand-600 font-semibold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200/50">${p.kategori || 'Umum'}</span>
+                <span class="text-[10px] text-brand-600 font-semibold bg-brand-50 px-2 py-0.5 rounded-md border border-brand-200/50 uppercase">${p.kategori || activePromptCategory}</span>
                 <span class="text-[10px] text-slate-400">Berkas #${index + 1}</span>
               </div>
             </div>
@@ -1383,12 +1198,62 @@
       });
     }
 
+    function openAddPromptCategoryModal() {
+      if (!currentUser || currentUser.role !== "Admin") {
+        showToast("Hanya Admin yang dapat menambahkan pilihan prompt!", "error");
+        return;
+      }
+
+      openFormModal("Tambah Pilihan Prompt Baru", "prompt_category", [
+        { id: "f-cat-nama", label: "Nama Pilihan Prompt (contoh: PROMPT SKILL, PROMPT DESIGN WEBAPP)", type: "text" }
+      ]);
+    }
+
+    function deletePromptCategory(catName) {
+      if (!currentUser || currentUser.role !== "Admin") {
+        showToast("Hanya Admin yang dapat menghapus pilihan prompt!", "error");
+        return;
+      }
+
+      if (dbPromptCategories.length <= 1) {
+        showToast("Minimal harus tersisa 1 pilihan prompt!", "error");
+        return;
+      }
+
+      openConfirmModal(
+        "Hapus Pilihan Prompt", 
+        `Apakah Anda yakin ingin menghapus pilihan prompt "${catName}"? Prompt di dalamnya tidak akan terhapus otomatis.`,
+        async () => {
+          dbPromptCategories = dbPromptCategories.filter(c => c.toUpperCase() !== catName.toUpperCase());
+          if (activePromptCategory.toUpperCase() === catName.toUpperCase()) {
+            activePromptCategory = dbPromptCategories[0];
+          }
+
+          if (!IS_PREVIEW && currentUser) {
+            try {
+              fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                  action: "deletePromptCategory",
+                  token: currentUser.token,
+                  kategori: catName
+                })
+              });
+            } catch (e) {}
+          }
+
+          renderPrompts();
+          showToast(`Pilihan prompt "${catName}" berhasil dihapus.`, "info");
+        }
+      );
+    }
+
     function openViewPromptModal(id) {
       const item = dbPrompts.find(p => p.id_prompt === id);
       if (!item) return;
 
       document.getElementById("detail-prompt-judul").innerText = item.judul;
-      document.getElementById("detail-prompt-kategori").innerText = item.kategori || "Umum";
+      document.getElementById("detail-prompt-kategori").innerText = item.kategori || activePromptCategory;
       document.getElementById("detail-prompt-isi").innerText = item.isi_prompt;
       
       const copyBtn = document.getElementById("detail-prompt-btn-copy");
@@ -1412,9 +1277,7 @@
       });
     }
 
-    // ==========================================
-    // RENDER: VIDEO TUTORIAL
-    // ==========================================
+    // VIDEOS
     function renderVideos() {
       const grid = document.getElementById("videos-grid");
       if (!grid) return;
@@ -1493,7 +1356,6 @@
       currentVideoCourse = course;
       currentActiveEpIndex = epIndex;
 
-      // Isi Judul Seri dan Deskripsi
       document.getElementById("video-modal-course-title").innerText = course.judul;
       document.getElementById("video-modal-description").innerText = course.deskripsi;
       
@@ -1502,7 +1364,6 @@
         epCountBadge.innerText = `${course.episodes ? course.episodes.length : 1} Episode Tersedia`;
       }
 
-      // Pastikan tombol tambah episode dalam modal mengikuti status admin
       const modalAddEpBtn = document.getElementById("btn-modal-add-episode");
       if (modalAddEpBtn) {
         if (currentUser && currentUser.role === "Admin") {
@@ -1586,9 +1447,7 @@
       currentVideoCourse = null;
     }
 
-    // ==========================================
-    // RENDER: SOURCE CODE (REVISI 2: DUAL TABS INDEX.HTML & CODE.GS)
-    // ==========================================
+    // SOURCE CODES
     function renderCodes() {
       const grid = document.getElementById("codes-grid");
       const search = document.getElementById("search-code").value.toLowerCase();
@@ -1621,7 +1480,6 @@
             <h4 class="text-sm font-bold text-slate-800 mb-1">${c.judul}</h4>
             <p class="text-xs text-slate-500 mb-3">${c.deskripsi}</p>
 
-            <!-- Tab Switcher Index.html / Code.gs -->
             <div class="flex gap-1.5 mb-2 border-b border-slate-100 pb-2">
               <button onclick="toggleCodeTab('${c.id_code}', 'index')" id="tab-btn-index-${c.id_code}" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-brand-50 text-brand-700 border border-brand-200 flex items-center gap-1.5 transition">
                 <i class="fa-brands fa-html5 text-orange-500"></i> Index.html
@@ -1631,12 +1489,10 @@
               </button>
             </div>
 
-            <!-- Box Preview Index.html -->
             <div id="code-content-index-${c.id_code}" class="bg-slate-900 rounded-xl p-3.5 relative overflow-x-auto mb-3 border border-slate-800 max-h-48">
               <pre class="text-[11px] text-amber-300 font-mono leading-relaxed">${escapeHtml(c.code_index || '// Belum ada kode Index.html')}</pre>
             </div>
 
-            <!-- Box Preview Code.gs -->
             <div id="code-content-gs-${c.id_code}" class="hidden bg-slate-900 rounded-xl p-3.5 relative overflow-x-auto mb-3 border border-slate-800 max-h-48">
               <pre class="text-[11px] text-emerald-400 font-mono leading-relaxed">${escapeHtml(c.code_gs || '// Belum ada kode Code.gs')}</pre>
             </div>
@@ -1653,10 +1509,10 @@
             </div>
             ${currentUser && currentUser.role === 'Admin' ? `
               <div class="flex justify-end gap-2 pt-1">
-                <button onclick="openEditCodeModal('${c.id_code}')" title="Edit" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1 text-xs transition">
+                <button onclick="openEditCodeModal('${c.id_code}')" title="Edit" class="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 flex items-center gap-1.5 text-xs transition">
                   <i class="fa-solid fa-pen"></i> Edit Kode
                 </button>
-                <button onclick="deleteCode('${c.id_code}')" title="Hapus" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center gap-1 text-xs transition">
+                <button onclick="deleteCode('${c.id_code}')" title="Hapus" class="px-3 py-1.5 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 flex items-center gap-1.5 text-xs transition">
                   <i class="fa-solid fa-trash"></i> Hapus
                 </button>
               </div>
@@ -1707,9 +1563,7 @@
         .replace(/>/g, "&gt;");
     }
 
-    // ==========================================
-    // RENDER: TOOL PILIHAN (REVISI 4: DILENGKAPI COVER)
-    // ==========================================
+    // TOOLS
     function renderTools() {
       const grid = document.getElementById("tools-grid");
       const search = document.getElementById("search-tool").value.toLowerCase();
@@ -1771,9 +1625,7 @@
       });
     }
 
-    // ==========================================
-    // RENDER: TEMPLATE APLIKASI
-    // ==========================================
+    // TEMPLATES
     function renderTemplates() {
       const grid = document.getElementById("templates-grid");
       if (!grid) return;
@@ -1795,23 +1647,19 @@
         card.className = "bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition";
         card.innerHTML = `
           <div>
-            <!-- Gambar Tampilan Template (Bisa Diupload Admin) -->
             <div class="aspect-video w-full bg-slate-100 overflow-hidden relative border-b border-slate-100">
               <img src="${t.cover_url || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&auto=format&fit=crop&q=80'}" alt="${t.judul}" class="w-full h-full object-cover">
             </div>
 
-            <!-- Konten: Judul, Deskripsi, Tombol Demo, & Peringatan Resources -->
             <div class="p-5">
               <h4 class="text-sm font-bold text-slate-800 mb-1.5">${t.judul}</h4>
               <p class="text-xs text-slate-500 leading-relaxed mb-4">${t.deskripsi}</p>
               
-              <!-- Tombol Buka Demo Aplikasi -->
               <a href="${t.demo_url || '#'}" target="_blank" class="w-full py-2.5 px-4 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-md shadow-brand-500/20 transition">
                 <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                 <span>Buka Demo Aplikasi</span>
               </a>
 
-              <!-- Peringatan: Kalau mau resources aplikasi di atas hubungi admin -->
               <div class="mt-3.5 p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-start gap-2 text-amber-900">
                 <i class="fa-solid fa-circle-exclamation text-amber-600 text-xs mt-0.5 flex-shrink-0"></i>
                 <p class="text-[11px] font-medium leading-snug">
@@ -1821,7 +1669,6 @@
             </div>
           </div>
 
-          <!-- Aksi Khusus Admin (Hanya Admin yang bisa Edit/Hapus) -->
           ${currentUser && currentUser.role === 'Admin' ? `
             <div class="px-5 pb-5 pt-0">
               <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
@@ -1839,85 +1686,10 @@
       });
     }
 
-    // ==========================================
-    // RENDER: MEMBER MANAGEMENT
-    // ==========================================
-    function renderMembers() {
-      const tbody = document.getElementById("members-table-body");
-      if (!tbody) return;
-      const search = (document.getElementById("search-member")?.value || "").toLowerCase();
-      tbody.innerHTML = "";
-
-      const filtered = dbUsers.filter(u => 
-        u.nama.toLowerCase().includes(search) || u.email.toLowerCase().includes(search)
-      );
-
-      const countEl = document.getElementById("member-table-count");
-      if (countEl) countEl.innerText = `${filtered.length} Orang`;
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="px-5 py-8 text-center text-slate-400">Tidak ada member ditemukan.</td></tr>`;
-        return;
-      }
-
-      const now = Date.now();
-
-      filtered.forEach(u => {
-        const lastActiveTime = u.last_active ? new Date(u.last_active).getTime() : 0;
-        const isOnline = lastActiveTime > 0 && (now - lastActiveTime) <= ONLINE_THRESHOLD_MS;
-        const relativeTime = formatRelativeTime(u.last_active);
-
-        const tr = document.createElement("tr");
-        tr.className = "hover:bg-slate-50/70 transition";
-        tr.innerHTML = `
-          <td class="px-5 py-3.5">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 rounded-xl bg-slate-200 text-slate-700 font-bold flex items-center justify-center text-xs">
-                ${u.nama.charAt(0)}
-              </div>
-              <div class="font-bold text-slate-800">${u.nama}</div>
-            </div>
-          </td>
-          <td class="px-4 py-3.5 font-mono text-slate-600">${u.email}</td>
-          <td class="px-4 py-3.5">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${u.role === 'Admin' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'}">
-              ${u.role}
-            </span>
-          </td>
-          <td class="px-4 py-3.5">
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${isOnline ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}">
-              <span class="w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}"></span>
-              ${isOnline ? 'Online' : 'Offline'}
-            </span>
-          </td>
-          <td class="px-4 py-3.5 text-slate-500 text-[11px]">${relativeTime}</td>
-          <td class="px-4 py-3.5 text-right admin-only ${currentUser && currentUser.role === 'Admin' ? '' : 'hidden'}">
-            ${u.email !== 'admin@portal.id' ? `
-              <button onclick="deleteMember('${u.id_user}')" title="Hapus Akses Member" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition">
-                <i class="fa-solid fa-trash"></i>
-              </button>
-            ` : '<span class="text-[10px] text-slate-300 italic">Protected</span>'}
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function formatRelativeTime(isoString) {
-      if (!isoString) return "Belum pernah";
-      const diffSec = Math.floor((Date.now() - new Date(isoString).getTime()) / 1000);
-      if (diffSec < 60) return "Baru saja";
-      if (diffSec < 3600) return `${Math.floor(diffSec / 60)} menit lalu`;
-      if (diffSec < 86400) return `${Math.floor(diffSec / 3600)} jam lalu`;
-      return `${Math.floor(diffSec / 86400)} hari lalu`;
-    }
-
-    // ==========================================
-    // MODAL FORMULIR DINAMIS & CRUD (DILENGKAPI UPLOAD GAMBAR DRIVE)
-    // ==========================================
+    // MODAL FORMULIR DINAMIS & CRUD
     let currentFormType = null;
     let currentEditId = null;
-    let currentUploadedCover = ""; // Penyimpan base64/Drive cover sementara
+    let currentUploadedCover = "";
 
     function openFormModal(title, type, fields, editId = null) {
       currentFormType = type;
@@ -1945,7 +1717,7 @@
               <div id="preview-${f.id}" class="aspect-video w-full rounded-xl bg-slate-100 border border-slate-200 overflow-hidden ${currentUploadedCover ? '' : 'hidden'}">
                 <img src="${currentUploadedCover || ''}" class="w-full h-full object-cover">
               </div>
-              <p class="text-[10px] text-slate-400">Pilih gambar langsung dari galeri HP atau folder laptop (terkoneksi Drive).</p>
+              <p class="text-[10px] text-slate-400">Pilih gambar langsung dari galeri HP atau folder laptop.</p>
             </div>
           `;
         } else {
@@ -1984,7 +1756,38 @@
     async function handleFormSubmit(e) {
       e.preventDefault();
 
-      if (currentFormType === "prompt") {
+      if (currentFormType === "prompt_category") {
+        const catNama = document.getElementById("f-cat-nama").value.trim().toUpperCase();
+        if (!catNama) {
+          showToast("Nama pilihan prompt tidak boleh kosong!", "error");
+          return;
+        }
+
+        if (dbPromptCategories.map(c => c.toUpperCase()).includes(catNama)) {
+          showToast("Pilihan prompt ini sudah ada!", "error");
+          return;
+        }
+
+        dbPromptCategories.push(catNama);
+        activePromptCategory = catNama;
+
+        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
+          try {
+            fetch(GAS_URL, {
+              method: "POST",
+              body: JSON.stringify({
+                action: "savePromptCategory",
+                token: currentUser.token,
+                kategori: catNama
+              })
+            });
+          } catch (err) {}
+        }
+
+        renderPrompts();
+        showToast(`Pilihan prompt "${catNama}" berhasil ditambahkan!`, "success");
+
+      } else if (currentFormType === "prompt") {
         const judul = document.getElementById("f-judul").value.trim();
         const kategori = document.getElementById("f-kategori").value;
         const isi_prompt = document.getElementById("f-isi").value.trim();
@@ -2004,9 +1807,7 @@
                 author: currentUser.nama
               })
             });
-          } catch (err) {
-            console.warn("Gagal menyimpan prompt ke GAS:", err);
-          }
+          } catch (err) {}
         }
 
         if (currentEditId) {
@@ -2026,8 +1827,9 @@
             author: currentUser ? currentUser.nama : "Admin",
             created_at: new Date().toISOString().split("T")[0]
           });
-          showToast("Prompt baru berhasil ditambahkan di urutan bawah!", "success");
+          showToast("Prompt baru berhasil ditambahkan!", "success");
         }
+        activePromptCategory = kategori;
         renderPrompts();
         renderDashboard();
 
@@ -2068,9 +1870,7 @@
                 episodes
               })
             });
-          } catch (err) {
-            console.warn("Gagal menyimpan video ke GAS:", err);
-          }
+          } catch (err) {}
         }
 
         if (currentEditId) {
@@ -2126,9 +1926,7 @@
                   durasi: newEp.durasi
                 })
               });
-            } catch (err) {
-              console.warn("Gagal tambah episode ke GAS:", err);
-            }
+            } catch (err) {}
           }
 
           course.episodes.push(newEp);
@@ -2165,9 +1963,7 @@
                 repo_url
               })
             });
-          } catch (err) {
-            console.warn("Gagal simpan source code ke GAS:", err);
-          }
+          } catch (err) {}
         }
 
         if (currentEditId) {
@@ -2178,7 +1974,7 @@
             item.code_index = code_index;
             item.code_gs = code_gs;
             item.repo_url = repo_url;
-            showToast("Source code Index.html & Code.gs berhasil diperbarui!", "success");
+            showToast("Source code berhasil diperbarui!", "success");
           }
         } else {
           dbCodes.unshift({
@@ -2190,7 +1986,7 @@
             code_gs,
             repo_url
           });
-          showToast("Source code baru (Index.html & Code.gs) berhasil disimpan!", "success");
+          showToast("Source code baru berhasil disimpan!", "success");
         }
         renderCodes();
 
@@ -2203,7 +1999,7 @@
 
         if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
           try {
-            showToast("Menyimpan tool ke Spreadsheet & Drive...", "info");
+            showToast("Menyimpan tool ke Spreadsheet...", "info");
             await fetch(GAS_URL, {
               method: "POST",
               body: JSON.stringify({
@@ -2218,9 +2014,7 @@
                 cover_url: currentUploadedCover
               })
             });
-          } catch (err) {
-            console.warn("Gagal simpan tool ke GAS:", err);
-          }
+          } catch (err) {}
         }
 
         if (currentEditId) {
@@ -2244,7 +2038,7 @@
             link_url,
             deskripsi
           });
-          showToast("Tool pilihan baru beserta cover berhasil disimpan!", "success");
+          showToast("Tool pilihan baru berhasil disimpan!", "success");
         }
         renderTools();
 
@@ -2268,9 +2062,7 @@
                 cover_url: currentUploadedCover
               })
             });
-          } catch (err) {
-            console.warn("Gagal simpan template ke GAS:", err);
-          }
+          } catch (err) {}
         }
 
         if (currentEditId) {
@@ -2293,54 +2085,16 @@
           showToast("Template aplikasi baru berhasil ditambahkan!", "success");
         }
         renderTemplates();
-
-      } else if (currentFormType === "member") {
-        const email = document.getElementById("f-member-email").value.trim().toLowerCase();
-        const nama = document.getElementById("f-member-nama").value.trim();
-
-        if (dbUsers.some(u => u.email.toLowerCase() === email)) {
-          showToast("Email member ini sudah terdaftar!", "error");
-          return;
-        }
-
-        if (!IS_PREVIEW && currentUser && currentUser.role === "Admin") {
-          try {
-            showToast("Mendaftarkan member ke Spreadsheet...", "info");
-            await fetch(GAS_URL, {
-              method: "POST",
-              body: JSON.stringify({
-                action: "addMember",
-                token: currentUser.token,
-                email,
-                nama
-              })
-            });
-          } catch (err) {
-            console.warn("Gagal daftar member ke GAS:", err);
-          }
-        }
-
-        dbUsers.push({
-          id_user: "u-" + Date.now(),
-          email,
-          nama: nama || email.split("@")[0],
-          role: "Member",
-          last_active: null
-        });
-
-        showToast(`Member (${email}) berhasil didaftarkan!`, "success");
-        renderMembers();
-        document.getElementById("dash-total-members").innerText = dbUsers.length;
       }
 
       closeFormModal();
     }
 
-    // Modal Helper: Prompts
+    // Modal Form Helper
     function openAddPromptModal() {
       openFormModal("Tambah Berkas Prompt Baru", "prompt", [
         { id: "f-judul", label: "Judul Prompt", type: "text" },
-        { id: "f-kategori", label: "Kategori Prompt", type: "select", options: ["Edukasi", "Coding", "Produktivitas", "Kreatif", "Umum"] },
+        { id: "f-kategori", label: "Pilihan Prompt (Kategori)", type: "select", options: dbPromptCategories, value: activePromptCategory },
         { id: "f-isi", label: "Isi Teks Prompt", type: "textarea", rows: 6 }
       ]);
     }
@@ -2357,9 +2111,7 @@
               method: "POST",
               body: JSON.stringify({ action: "deletePrompt", id_prompt: id, token: currentUser.token })
             });
-          } catch (e) {
-            console.warn("Gagal hapus prompt di server:", e);
-          }
+          } catch (e) {}
         }
         dbPrompts = dbPrompts.filter(p => p.id_prompt !== id);
         renderPrompts();
@@ -2368,18 +2120,16 @@
       });
     }
 
-    // Modal Helper: Videos
     function openAddVideoModal() {
       openFormModal("Tambah Video Tutorial (Bisa 1 Episode Dulu)", "video", [
-        { id: "f-video-judul", label: "Judul Seri Tutorial (contoh: Tutorial Belajar AppScript Pemula)", type: "text" },
+        { id: "f-video-judul", label: "Judul Seri Tutorial", type: "text" },
         { id: "f-video-kategori", label: "Kategori", type: "select", options: ["Google Apps Script", "Web Development", "Prompt Engineering", "Tutorial Umum"] },
         { id: "f-video-cover", label: "URL Cover Gambar Banner (opsional)", type: "text", required: false },
         { id: "f-video-desk", label: "Deskripsi Tutorial", type: "textarea", rows: 3 },
-        { id: "f-video-episodes", label: "Episode Awal (Cukup 1 dulu, nanti bisa ditambah lagi. Format: Judul | YouTube_ID atau Link | Durasi)", type: "textarea", rows: 4, value: "Episode 1: Pengenalan Dasar Apps Script & Editor | dQw4w9WgXcQ | 10:15" }
+        { id: "f-video-episodes", label: "Episode Awal (Format: Judul | YouTube_ID atau Link | Durasi)", type: "textarea", rows: 4, value: "Episode 1: Pengenalan Dasar Apps Script & Editor | dQw4w9WgXcQ | 10:15" }
       ]);
     }
 
-    // REVISI 1: Modal Tambah Episode Bertahap
     function openAddEpisodeModal(courseId) {
       const course = dbVideos.find(v => v.id_video === courseId);
       if (!course) return;
@@ -2401,7 +2151,7 @@
         { id: "f-video-kategori", label: "Kategori", type: "select", options: ["Google Apps Script", "Web Development", "Prompt Engineering", "Tutorial Umum"], value: v.kategori },
         { id: "f-video-cover", label: "URL Cover Gambar Banner", type: "text", value: v.cover_url },
         { id: "f-video-desk", label: "Deskripsi Tutorial", type: "textarea", rows: 3, value: v.deskripsi },
-        { id: "f-video-episodes", label: "Daftar Episode (Format: Judul Episode | YouTube_ID | Durasi)", type: "textarea", rows: 5, value: rawEps }
+        { id: "f-video-episodes", label: "Daftar Episode", type: "textarea", rows: 5, value: rawEps }
       ], id);
     }
 
@@ -2413,9 +2163,7 @@
               method: "POST",
               body: JSON.stringify({ action: "deleteVideo", id_video: id, token: currentUser.token })
             });
-          } catch (e) {
-            console.warn("Gagal hapus video di server:", e);
-          }
+          } catch (e) {}
         }
         dbVideos = dbVideos.filter(v => v.id_video !== id);
         renderVideos();
@@ -2423,7 +2171,6 @@
       });
     }
 
-    // Modal Helper: Source Code (REVISI 2: Input Index.html & Code.gs)
     function openAddCodeModal() {
       openFormModal("Tambah Source Code (Index.html & Code.gs)", "code", [
         { id: "f-code-judul", label: "Judul Source Code", type: "text" },
@@ -2454,9 +2201,7 @@
               method: "POST",
               body: JSON.stringify({ action: "deleteCode", id_code: id, token: currentUser.token })
             });
-          } catch (e) {
-            console.warn("Gagal hapus code di server:", e);
-          }
+          } catch (e) {}
         }
         dbCodes = dbCodes.filter(c => c.id_code !== id);
         renderCodes();
@@ -2464,7 +2209,6 @@
       });
     }
 
-    // Modal Helper: Tools (Dengan Upload Cover)
     function openAddToolModal() {
       openFormModal("Tambah Tool Pilihan", "tool", [
         { id: "f-tool-nama", label: "Nama Tool", type: "text" },
@@ -2497,9 +2241,7 @@
               method: "POST",
               body: JSON.stringify({ action: "deleteTool", id_tool: id, token: currentUser.token })
             });
-          } catch (e) {
-            console.warn("Gagal hapus tool di server:", e);
-          }
+          } catch (e) {}
         }
         dbTools = dbTools.filter(t => t.id_tool !== id);
         renderTools();
@@ -2507,7 +2249,6 @@
       });
     }
 
-    // Modal Helper: Template Aplikasi (Upload Cover dari HP/Komputer)
     function openAddTemplateModal() {
       openFormModal("Tambah Template Aplikasi", "template", [
         { id: "f-tpl-judul", label: "Judul Template Aplikasi", type: "text" },
@@ -2540,9 +2281,7 @@
               method: "POST",
               body: JSON.stringify({ action: "deleteTemplate", id_template: id, token: currentUser.token })
             });
-          } catch (e) {
-            console.warn("Gagal hapus template di server:", e);
-          }
+          } catch (e) {}
         }
         dbTemplates = dbTemplates.filter(t => t.id_template !== id);
         renderTemplates();
@@ -2550,53 +2289,8 @@
       });
     }
 
-    // Modal Helper: Members
-    function openAddMemberModal() {
-      openFormModal("Daftarkan Email Member Baru", "member", [
-        { id: "f-member-email", label: "Email Member (Untuk Akses Masuk)", type: "email" },
-        { id: "f-member-nama", label: "Nama Lengkap Member", type: "text" }
-      ]);
-    }
-
-    function deleteMember(id) {
-      openConfirmModal("Hapus Akses Member", "Member ini tidak akan dapat login lagi ke portal. Lanjutkan?", async () => {
-        if (!IS_PREVIEW && currentUser) {
-          try {
-            await fetch(GAS_URL, {
-              method: "POST",
-              body: JSON.stringify({ action: "deleteMember", id_user: id, token: currentUser.token })
-            });
-          } catch (e) {
-            console.warn("Gagal hapus member di server:", e);
-          }
-        }
-        dbUsers = dbUsers.filter(u => u.id_user !== id);
-        renderMembers();
-        document.getElementById("dash-total-members").innerText = dbUsers.length;
-        updateOnlineMetrics();
-        showToast("Akses member berhasil dicabut.", "info");
-      });
-    }
-
-    // ==========================================
-    // RESTORE SESI
-    // ==========================================
+    // INITIAL RESTORE
     window.addEventListener("DOMContentLoaded", () => {
-      // Pulihkan cache data agar seluruh konten siap seketika (0 jeda loading)
-      try {
-        const cachedData = localStorage.getItem("portal_cached_data");
-        if (cachedData) {
-          const parsed = JSON.parse(cachedData);
-          if (parsed.users) dbUsers = parsed.users;
-          if (parsed.prompts) dbPrompts = parsed.prompts;
-          if (parsed.videos) dbVideos = parsed.videos;
-          if (parsed.sourceCodes) dbCodes = parsed.sourceCodes;
-          if (parsed.tools) dbTools = parsed.tools;
-          if (parsed.templates) dbTemplates = parsed.templates;
-        }
-      } catch (e) {}
-
-      // Inisialisasi cover prompt dari penyimpanan lokal jika tersedia
       const heroImg = document.getElementById("prompt-hero-cover-img");
       if (heroImg && promptHeroCover) heroImg.src = promptHeroCover;
 
